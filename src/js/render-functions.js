@@ -15,7 +15,7 @@ const endMessage = document.createElement('p');
 endMessage.classList.add('end-message');
 endMessage.textContent = "We're sorry, but you've reached the end of search results.";
 endMessage.style.display = 'none';
-document.body.appendChild(endMessage);
+gallery.after(endMessage);
 
 let searchQuery = '';
 let currentPage = 1;
@@ -75,7 +75,7 @@ export async function renderImages(images, append = false) {
   if (gallery.children.length >= totalHits && totalHits > 0) {
     loadMoreButton.style.display = 'none';
     endMessage.style.display = 'block';
-  } else if (gallery.children.length >= perPage) {
+  } else if (gallery.children.length < totalHits) {
     loadMoreButton.style.display = 'block';
     endMessage.style.display = 'none';
   }
