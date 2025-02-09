@@ -16,7 +16,7 @@ let searchQuery = '';
 let currentPage = 1;
 const perPage = 40;
 let totalHits = 0;
-let loadedImageIds = new Set(); // Храним ID загруженных изображений
+let loadedImageIds = new Set();
 
 export function renderImages(images, append = false) {
   if (!Array.isArray(images) || images.length === 0) {
@@ -34,7 +34,7 @@ export function renderImages(images, append = false) {
 
   if (!append) {
     gallery.innerHTML = '';
-    loadedImageIds.clear(); // Очистка при новом поиске
+    loadedImageIds.clear();
   }
 
   gallery.innerHTML += uniqueImages.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => `
@@ -52,7 +52,7 @@ export function renderImages(images, append = false) {
 
   lightbox.refresh();
 
-  if (gallery.children.length >= totalHits) {
+  if (gallery.children.length >= totalHits && currentPage > 1) {
     loadMoreButton.style.display = 'none';
     iziToast.info({
       title: 'Info',
@@ -87,7 +87,7 @@ if (searchForm && searchInput) {
     }
 
     currentPage = 1;
-    loadedImageIds.clear(); // Очищаем список загруженных изображений при новом поиске
+    loadedImageIds.clear();
     loadMoreButton.style.display = 'none';
 
     const response = await fetchImages(searchQuery, currentPage, perPage);
@@ -130,6 +130,7 @@ function showLoader() {
 function hideLoader() {
   loadingOverlay.style.display = 'none';
 }
+
 
 
 
