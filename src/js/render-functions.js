@@ -1,21 +1,21 @@
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import { fetchImages } from './pixabay-api';
+import iziToast from 'izitoast';
+import 'izitoast/dist/css/iziToast.min.css';
 
 const gallery = document.querySelector('.gallery');
 const lightbox = new SimpleLightbox('.gallery a', {
   captionsData: 'alt',
   captionDelay: 250,
 });
-const loadMoreButton = document.createElement('button');
-loadMoreButton.textContent = 'Load more';
-loadMoreButton.classList.add('load-more');
-loadMoreButton.style.display = 'none';
-document.body.appendChild(loadMoreButton);
+const loadMoreButton = document.querySelector('.load-more');
+const loadingOverlay = document.getElementById('loading-overlay');
 
 let searchQuery = '';
 let currentPage = 1;
 const perPage = 40;
+let totalHits = 0;
 
 export function renderImages(images, append = false) {
   if (!Array.isArray(images) || images.length === 0) {
@@ -42,7 +42,17 @@ export function renderImages(images, append = false) {
 
   lightbox.refresh();
 
-  loadMoreButton.style.display = images.length < perPage ? 'none' : 'block';
+  // Проверка, достигли ли конца коллекции
+  if (gallery.children.length >= totalHits) {
+    loadMoreButton.style.display = 'none';
+    iziToast.info({
+      title: 'Info',
+      message: "We're sorry, but you've reached the end of search results.",
+      position: 'topRight',
+    });
+  } else {
+    loadMoreButton.style.display = 'block';
+  }
 }
 
 export function showErrorMessage() {
@@ -73,6 +83,7 @@ if (searchForm && searchInput) {
 
     const response = await fetchImages(searchQuery, currentPage, perPage);
     if (response && response.hits) {
+      totalHits = response.totalHits;
       renderImages(response.hits);
     } else {
       showErrorMessage();
@@ -85,13 +96,23 @@ if (searchForm && searchInput) {
 // Load more images
 loadMoreButton.addEventListener('click', async () => {
   currentPage += 1;
+  showLoader();
   const response = await fetchImages(searchQuery, currentPage, perPage);
   if (response && response.hits) {
     renderImages(response.hits, true);
-  } else {
-    loadMoreButton.style.display = 'none';
   }
+  hideLoader();
 });
+
+// Функции для показа/скрытия индикатора загрузки
+function showLoader() {
+  loadingOverlay.style.display = 'block';
+}
+
+function hideLoader() {
+  loadingOverlay.style.display = 'none';
+}
+
 
 
 
