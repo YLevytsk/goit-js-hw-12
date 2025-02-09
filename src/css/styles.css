@@ -166,11 +166,25 @@
   border: none;
   outline: none;
   border-radius: 8px;
-padding: 8px 16px;
-width: 125px;
-height: 40px;
-align-items: center;
-display: block;
+  padding: 8px 16px;
+  width: 125px;
+  height: 40px;
+  align-items: center;
+  display: block;
 
 }
+
+.end-message {
+  font-family: var(--font-family);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 150%;
+  letter-spacing: 0.04em;
+  color: #2e2f42;
+  align-items: center;
+  justify-content: center;
+  left: 50%;
+  text-align: center;
+}
+
 

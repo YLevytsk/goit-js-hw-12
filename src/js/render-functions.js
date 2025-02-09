@@ -13,7 +13,7 @@ const loadMoreButton = document.querySelector('.load-more');
 const loadingOverlay = document.getElementById('loading-overlay');
 const endMessage = document.createElement('p');
 endMessage.classList.add('end-message');
-endMessage.textContent = "We're sorry, but you've reached the end of search results.";
+endMessage.textContent = "We're sorry, but you've reached the end of search results...";
 endMessage.style.display = 'none';
 gallery.after(endMessage);
 
