@@ -70,13 +70,10 @@ if (searchForm && searchInput) {
   console.error('Search form or input not found in DOM');
 }
 
-// Load initial images from default category
+// Load initial images without categories (random images)
 async function loadInitialImages() {
   try {
-    const defaultCategory = 'nature'; // ✅ По умолчанию загружается категория "nature"
-    console.log(`Fetching initial images for: ${defaultCategory}`);
-
-    const response = await fetchImages(defaultCategory);
+    const response = await fetchImages(''); // Загружаем без фильтра по категории
     if (response && response.hits) {
       renderImages(response.hits);
     } else {
@@ -89,5 +86,6 @@ async function loadInitialImages() {
 }
 
 loadInitialImages();
+
 
 
