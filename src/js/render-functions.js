@@ -42,7 +42,7 @@ export function renderImages(images, append = false) {
 
   lightbox.refresh();
 
-  // Проверка, достигли ли конца коллекции
+  // Проверяем, достигли ли конца коллекции
   if (gallery.children.length >= totalHits) {
     loadMoreButton.style.display = 'none';
     iziToast.info({
@@ -95,8 +95,19 @@ if (searchForm && searchInput) {
 
 // Load more images
 loadMoreButton.addEventListener('click', async () => {
-  currentPage += 1;
+  if (gallery.children.length >= totalHits) {
+    loadMoreButton.style.display = 'none';
+    iziToast.info({
+      title: 'Info',
+      message: "We're sorry, but you've reached the end of search results.",
+      position: 'topRight',
+    });
+    return;
+  }
+
+  currentPage += 1; // Увеличиваем номер страницы
   showLoader();
+
   const response = await fetchImages(searchQuery, currentPage, perPage);
   if (response && response.hits) {
     renderImages(response.hits, true);
