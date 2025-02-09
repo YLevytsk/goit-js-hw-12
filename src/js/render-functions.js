@@ -8,32 +8,14 @@ const lightbox = new SimpleLightbox('.gallery a', {
   captionDelay: 250,
 });
 
-export async function renderImages(query) {
+export async function renderImages(images) {
   try {
-    if (!query || typeof query !== 'string') {
-      console.error('Expected a string, but received:', query);
+    if (!Array.isArray(images) || images.length === 0) {
+      console.error('Expected an array of images, but received:', images);
       showErrorMessage();
       return;
     }
 
-    const trimmedQuery = query.trim();
-    if (trimmedQuery === '') {
-      showErrorMessage();
-      return;
-    }
-
-    gallery.innerHTML = '';
-
-    const response = await fetchImages(trimmedQuery);
-
-    // ✅ Исправлена проверка ответа API
-    if (!response || !response.hits || !Array.isArray(response.hits) || response.hits.length === 0) {
-      console.error('Unexpected response from fetchImages:', response);
-      showErrorMessage();
-      return;
-    }
-
-    const images = response.hits;
     gallery.innerHTML = images.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => `
       <div class="gallery-item">
         <a href="${largeImageURL}">
@@ -49,7 +31,7 @@ export async function renderImages(query) {
 
     lightbox.refresh();
   } catch (error) {
-    console.error('Error fetching images:', error);
+    console.error('Error rendering images:', error);
     showErrorMessage();
   }
 }
@@ -77,10 +59,36 @@ if (searchForm && searchInput) {
       return;
     }
 
-    await renderImages(query);
+    const response = await fetchImages(query);
+    if (response && response.hits) {
+      renderImages(response.hits);
+    } else {
+      showErrorMessage();
+    }
   });
 } else {
   console.error('Search form or input not found in DOM');
 }
+
+// Load random images on page load
+async function loadRandomImages() {
+  try {
+    const categories = ['nature', 'technology', 'art', 'food', 'travel'];
+    const randomQuery = categories[Math.floor(Math.random() * categories.length)];
+    console.log(`Fetching images for: ${randomQuery}`);
+
+    const response = await fetchImages(randomQuery);
+    if (response && response.hits) {
+      renderImages(response.hits);
+    } else {
+      showErrorMessage();
+    }
+  } catch (error) {
+    console.error('Error fetching random images:', error);
+    showErrorMessage();
+  }
+}
+
+loadRandomImages();
 
 
