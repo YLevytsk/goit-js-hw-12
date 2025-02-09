@@ -15,7 +15,7 @@ const endMessage = document.createElement('p');
 endMessage.classList.add('end-message');
 endMessage.textContent = "We're sorry, but you've reached the end of search results.";
 endMessage.style.display = 'none';
-document.body.appendChild(endMessage);
+gallery.after(endMessage);
 
 let searchQuery = '';
 let currentPage = 1;
@@ -61,7 +61,6 @@ export function renderImages(images, append = false) {
 
   lightbox.refresh();
 
-  // Показываем кнопку загрузки только если доступно больше 40 изображений
   if (gallery.children.length >= totalHits) {
     loadMoreButton.style.display = 'none';
     endMessage.style.display = 'block';
@@ -135,6 +134,7 @@ function showLoader() {
 function hideLoader() {
   loadingOverlay.style.display = 'none';
 }
+
 
 
 
