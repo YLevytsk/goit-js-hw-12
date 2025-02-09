@@ -61,7 +61,8 @@ if (searchForm && searchInput) {
 
     const response = await fetchImages(query);
     if (response && response.hits) {
-      renderImages(response.hits);
+      const filteredImages = response.hits.filter(image => image.tags.toLowerCase().includes(query.toLowerCase()));
+      renderImages(filteredImages);
     } else {
       showErrorMessage();
     }
@@ -70,10 +71,11 @@ if (searchForm && searchInput) {
   console.error('Search form or input not found in DOM');
 }
 
-// Load initial images without categories (random images)
+// Load initial random images
 async function loadInitialImages() {
   try {
-    const response = await fetchImages(''); // Загружаем без фильтра по категории
+    const defaultQuery = 'popular'; // Покажет популярные фото без категории
+    const response = await fetchImages(defaultQuery);
     if (response && response.hits) {
       renderImages(response.hits);
     } else {
@@ -86,6 +88,7 @@ async function loadInitialImages() {
 }
 
 loadInitialImages();
+
 
 
 
