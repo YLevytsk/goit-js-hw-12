@@ -72,7 +72,7 @@ export async function renderImages(images, append = false) {
     }
   }
 
-  if (gallery.children.length >= totalHits || (currentPage * perPage) >= totalHits) {
+  if ((currentPage * perPage) >= totalHits || gallery.children.length >= totalHits) {
     loadMoreButton.style.display = 'none';
     endMessage.style.display = 'block';
   } else {
@@ -82,12 +82,7 @@ export async function renderImages(images, append = false) {
 }
 
 export function showErrorMessage() {
-  gallery.innerHTML = `
-    <p class="error-message">
-      Sorry, no images match your search. Please try again!
-    </p>
-  `;
-  loadMoreButton.style.display = 'none';
+  gallery.innerHTML = '';
   endMessage.style.display = 'none';
 }
 
@@ -112,7 +107,7 @@ if (searchForm && searchInput) {
 
     const response = await fetchImages(searchQuery, currentPage, perPage);
     if (response && response.hits.length > 0) {
-      totalHits = Math.min(response.totalHits, 500); // Ограничиваем 500, чтобы избежать API-ограничения
+      totalHits = Math.min(response.totalHits, 500);
       await renderImages(response.hits);
       if ((currentPage * perPage) < totalHits) {
         loadMoreButton.style.display = 'block';
@@ -126,7 +121,7 @@ if (searchForm && searchInput) {
 }
 
 loadMoreButton.addEventListener('click', async () => {
-  if (gallery.children.length >= totalHits || (currentPage * perPage) >= totalHits) {
+  if ((currentPage * perPage) >= totalHits || gallery.children.length >= totalHits) {
     loadMoreButton.style.display = 'none';
     endMessage.style.display = 'block';
     return;
