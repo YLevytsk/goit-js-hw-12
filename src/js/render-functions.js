@@ -70,25 +70,24 @@ if (searchForm && searchInput) {
   console.error('Search form or input not found in DOM');
 }
 
-// Load random images on page load
-async function loadRandomImages() {
+// Load initial images from default category
+async function loadInitialImages() {
   try {
-    const categories = ['nature', 'technology', 'art', 'food', 'travel'];
-    const randomQuery = categories[Math.floor(Math.random() * categories.length)];
-    console.log(`Fetching images for: ${randomQuery}`);
+    const defaultCategory = 'nature'; // ✅ По умолчанию загружается категория "nature"
+    console.log(`Fetching initial images for: ${defaultCategory}`);
 
-    const response = await fetchImages(randomQuery);
+    const response = await fetchImages(defaultCategory);
     if (response && response.hits) {
       renderImages(response.hits);
     } else {
       showErrorMessage();
     }
   } catch (error) {
-    console.error('Error fetching random images:', error);
+    console.error('Error fetching initial images:', error);
     showErrorMessage();
   }
 }
 
-loadRandomImages();
+loadInitialImages();
 
 
