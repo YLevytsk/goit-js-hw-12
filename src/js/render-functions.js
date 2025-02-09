@@ -27,7 +27,7 @@ let loadedImageIds = new Set();
 loadMoreButton.style.display = 'none';
 endMessage.style.display = 'none';
 
-export function renderImages(images, append = false) {
+export async function renderImages(images, append = false) {
   if (!Array.isArray(images) || images.length === 0) {
     showErrorMessage();
     return;
@@ -46,7 +46,7 @@ export function renderImages(images, append = false) {
     loadedImageIds.clear();
   }
 
-  gallery.innerHTML += uniqueImages.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => `
+  const markup = uniqueImages.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => `
     <div class="gallery-item">
       <a href="${largeImageURL}">
         <img src="${webformatURL}" alt="${tags}" loading="lazy" />
@@ -59,12 +59,13 @@ export function renderImages(images, append = false) {
       </div>
     </div>`).join('');
 
+  gallery.insertAdjacentHTML('beforeend', markup);
   lightbox.refresh();
 
   if (gallery.children.length >= totalHits) {
     loadMoreButton.style.display = 'none';
     endMessage.style.display = 'block';
-  } else if (gallery.children.length >= 40) {
+  } else if (gallery.children.length >= perPage) {
     loadMoreButton.style.display = 'block';
     endMessage.style.display = 'none';
   }
@@ -101,7 +102,10 @@ if (searchForm && searchInput) {
     const response = await fetchImages(searchQuery, currentPage, perPage);
     if (response && response.hits.length > 0) {
       totalHits = response.totalHits;
-      renderImages(response.hits);
+      await renderImages(response.hits);
+      if (totalHits > perPage) {
+        loadMoreButton.style.display = 'block';
+      }
     } else {
       showErrorMessage();
     }
@@ -122,7 +126,7 @@ loadMoreButton.addEventListener('click', async () => {
 
   const response = await fetchImages(searchQuery, currentPage, perPage);
   if (response && response.hits) {
-    renderImages(response.hits, true);
+    await renderImages(response.hits, true);
   }
   hideLoader();
 });
