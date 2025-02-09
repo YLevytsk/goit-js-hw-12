@@ -23,9 +23,11 @@ const perPage = 40;
 let totalHits = 0;
 let loadedImageIds = new Set();
 
-// Изначально скрываем кнопку и сообщение
+// Скрываем кнопку и сообщение при загрузке страницы
 loadMoreButton.style.display = 'none';
 endMessage.style.display = 'none';
+
+gallery.innerHTML = ''; // Очистка галереи при загрузке страницы
 
 export async function renderImages(images, append = false) {
   if (!Array.isArray(images) || images.length === 0) {
@@ -98,6 +100,7 @@ if (searchForm && searchInput) {
     loadedImageIds.clear();
     loadMoreButton.style.display = 'none';
     endMessage.style.display = 'none';
+    gallery.innerHTML = ''; // Очистка перед новым запросом
 
     const response = await fetchImages(searchQuery, currentPage, perPage);
     if (response && response.hits.length > 0) {
