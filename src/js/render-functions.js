@@ -72,8 +72,7 @@ export async function renderImages(images, append = false) {
     }
   }
 
-  // Проверяем, достигли ли конца доступных изображений
-  if ((currentPage * perPage) >= totalHits) {
+  if (gallery.children.length >= totalHits || (currentPage * perPage) >= totalHits) {
     loadMoreButton.style.display = 'none';
     endMessage.style.display = 'block';
   } else {
@@ -113,7 +112,7 @@ if (searchForm && searchInput) {
 
     const response = await fetchImages(searchQuery, currentPage, perPage);
     if (response && response.hits.length > 0) {
-      totalHits = response.totalHits;
+      totalHits = Math.min(response.totalHits, 500); // Ограничиваем 500, чтобы избежать API-ограничения
       await renderImages(response.hits);
       if ((currentPage * perPage) < totalHits) {
         loadMoreButton.style.display = 'block';
@@ -127,7 +126,7 @@ if (searchForm && searchInput) {
 }
 
 loadMoreButton.addEventListener('click', async () => {
-  if ((currentPage * perPage) >= totalHits) {
+  if (gallery.children.length >= totalHits || (currentPage * perPage) >= totalHits) {
     loadMoreButton.style.display = 'none';
     endMessage.style.display = 'block';
     return;
@@ -139,6 +138,9 @@ loadMoreButton.addEventListener('click', async () => {
   const response = await fetchImages(searchQuery, currentPage, perPage);
   if (response && response.hits.length > 0) {
     await renderImages(response.hits, true);
+  } else {
+    loadMoreButton.style.display = 'none';
+    endMessage.style.display = 'block';
   }
   hideLoader();
 });
@@ -150,6 +152,7 @@ function showLoader() {
 function hideLoader() {
   loadingOverlay.style.display = 'none';
 }
+
 
 
 
