@@ -157,7 +157,8 @@
   100% { transform: rotate(360deg); }
 }
 .load-more {
-  margin: 32px auto 0;
+  margin-top: 32px;
+  margin: auto 0;
   background: #4e75ff;
   color: #ffffff;
   font-size: 16px;
