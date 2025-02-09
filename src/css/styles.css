@@ -157,8 +157,7 @@
   100% { transform: rotate(360deg); }
 }
 .load-more {
-  margin-top: 32px;
-  margin: auto 0;
+  margin: 32px auto 44px;
   background: #4e75ff;
   color: #ffffff;
   font-size: 16px;
@@ -172,6 +171,6 @@ width: 125px;
 height: 40px;
 align-items: center;
 display: block;
-margin: auto;
+
 }
 
