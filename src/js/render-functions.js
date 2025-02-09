@@ -34,20 +34,12 @@ export async function renderImages(images, append = false) {
     return;
   }
 
-  const uniqueImages = images.filter(image => {
-    if (!loadedImageIds.has(image.id)) {
-      loadedImageIds.add(image.id);
-      return true;
-    }
-    return false;
-  });
-
   if (!append) {
     gallery.innerHTML = '';
     loadedImageIds.clear();
   }
 
-  const markup = uniqueImages.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => `
+  const markup = images.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => `
     <div class="gallery-item">
       <a href="${largeImageURL}">
         <img src="${webformatURL}" alt="${tags}" loading="lazy" />
@@ -72,7 +64,7 @@ export async function renderImages(images, append = false) {
     }
   }
 
-  if (loadedImageIds.size >= totalHits || gallery.children.length >= totalHits) {
+  if (gallery.children.length >= totalHits) {
     loadMoreButton.style.display = 'none';
     endMessage.style.display = 'block';
   } else {
@@ -109,7 +101,7 @@ if (searchForm && searchInput) {
     if (response && response.hits.length > 0) {
       totalHits = Math.min(response.totalHits, 500);
       await renderImages(response.hits);
-      if ((currentPage * perPage) < totalHits) {
+      if (gallery.children.length < totalHits) {
         loadMoreButton.style.display = 'block';
       }
     } else {
@@ -121,7 +113,7 @@ if (searchForm && searchInput) {
 }
 
 loadMoreButton.addEventListener('click', async () => {
-  if (loadedImageIds.size >= totalHits || gallery.children.length >= totalHits) {
+  if (gallery.children.length >= totalHits) {
     loadMoreButton.style.display = 'none';
     endMessage.style.display = 'block';
     return;
@@ -147,6 +139,7 @@ function showLoader() {
 function hideLoader() {
   loadingOverlay.style.display = 'none';
 }
+
 
 
 
