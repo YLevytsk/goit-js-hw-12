@@ -23,8 +23,9 @@ const perPage = 40;
 let totalHits = 0;
 let loadedImageIds = new Set();
 
-// Изначально скрываем кнопку загрузки
+// Изначально скрываем кнопку и сообщение
 loadMoreButton.style.display = 'none';
+endMessage.style.display = 'none';
 
 export function renderImages(images, append = false) {
   if (!Array.isArray(images) || images.length === 0) {
@@ -60,11 +61,12 @@ export function renderImages(images, append = false) {
 
   lightbox.refresh();
 
-  if (gallery.children.length >= totalHits && currentPage > 1) {
+  // Показываем кнопку загрузки только если доступно больше 40 изображений
+  if (gallery.children.length >= totalHits) {
     loadMoreButton.style.display = 'none';
     endMessage.style.display = 'block';
-  } else {
-    loadMoreButton.style.display = gallery.children.length < 30 ? 'none' : 'block';
+  } else if (gallery.children.length >= 40) {
+    loadMoreButton.style.display = 'block';
     endMessage.style.display = 'none';
   }
 }
@@ -76,6 +78,7 @@ export function showErrorMessage() {
     </p>
   `;
   loadMoreButton.style.display = 'none';
+  endMessage.style.display = 'none';
 }
 
 const searchForm = document.querySelector('.search-form');
@@ -132,6 +135,7 @@ function showLoader() {
 function hideLoader() {
   loadingOverlay.style.display = 'none';
 }
+
 
 
 
