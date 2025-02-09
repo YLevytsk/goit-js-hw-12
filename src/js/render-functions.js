@@ -72,7 +72,7 @@ export async function renderImages(images, append = false) {
     }
   }
 
-  if (gallery.children.length >= totalHits && totalHits > 0) {
+  if (gallery.children.length >= totalHits) {
     loadMoreButton.style.display = 'none';
     endMessage.style.display = 'block';
   } else if (gallery.children.length < totalHits) {
@@ -114,7 +114,7 @@ if (searchForm && searchInput) {
     if (response && response.hits.length > 0) {
       totalHits = response.totalHits;
       await renderImages(response.hits);
-      if (totalHits > perPage) {
+      if (gallery.children.length < totalHits) {
         loadMoreButton.style.display = 'block';
       }
     } else {
@@ -126,18 +126,17 @@ if (searchForm && searchInput) {
 }
 
 loadMoreButton.addEventListener('click', async () => {
-  if (gallery.children.length >= totalHits && totalHits > 0) {
-    loadMoreButton.style.display = 'none';
-    endMessage.style.display = 'block';
-    return;
-  }
-
   currentPage += 1;
   showLoader();
 
   const response = await fetchImages(searchQuery, currentPage, perPage);
   if (response && response.hits.length > 0) {
     await renderImages(response.hits, true);
+  }
+  
+  if (gallery.children.length >= totalHits) {
+    loadMoreButton.style.display = 'none';
+    endMessage.style.display = 'block';
   }
   hideLoader();
 });
