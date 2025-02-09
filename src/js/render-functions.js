@@ -26,7 +26,7 @@ let loadedImageIds = new Set();
 // Скрываем кнопку и сообщение при загрузке страницы
 loadMoreButton.style.display = 'none';
 endMessage.style.display = 'none';
-gallery.innerHTML = ''; // Очистка галереи при загрузке страницы
+gallery.innerHTML = ''; endMessage.style.display = 'none'; loadMoreButton.style.display = 'none'; // Очистка галереи при загрузке страницы
 
 export async function renderImages(images, append = false) {
   if (!Array.isArray(images) || images.length === 0) {
@@ -34,7 +34,7 @@ export async function renderImages(images, append = false) {
   }
 
   if (!append) {
-    gallery.innerHTML = '';
+    gallery.innerHTML = ''; endMessage.style.display = 'none'; loadMoreButton.style.display = 'none';
     loadedImageIds.clear();
   }
 
@@ -65,7 +65,7 @@ export async function renderImages(images, append = false) {
 
   if (gallery.children.length >= totalHits) {
     loadMoreButton.style.display = 'none';
-    endMessage.style.display = 'block';
+    if (gallery.children.length > 0) { endMessage.style.display = 'block'; }
   } else {
     loadMoreButton.style.display = 'block';
     endMessage.style.display = 'none';
@@ -89,7 +89,7 @@ if (searchForm && searchInput) {
     loadedImageIds.clear();
     loadMoreButton.style.display = 'none';
     endMessage.style.display = 'none';
-    gallery.innerHTML = ''; // Очистка перед новым запросом
+    gallery.innerHTML = ''; endMessage.style.display = 'none'; loadMoreButton.style.display = 'none'; // Очистка перед новым запросом
 
     const response = await fetchImages(searchQuery, currentPage, perPage);
     if (response && response.hits.length > 0) {
@@ -107,7 +107,7 @@ if (searchForm && searchInput) {
 loadMoreButton.addEventListener('click', async () => {
   if (gallery.children.length >= totalHits) {
     loadMoreButton.style.display = 'none';
-    endMessage.style.display = 'block';
+    if (gallery.children.length > 0) { endMessage.style.display = 'block'; }
     return;
   }
 
@@ -119,7 +119,7 @@ loadMoreButton.addEventListener('click', async () => {
     await renderImages(response.hits, true);
   } else {
     loadMoreButton.style.display = 'none';
-    endMessage.style.display = 'block';
+    if (gallery.children.length > 0) { endMessage.style.display = 'block'; }
   }
   hideLoader();
 });
