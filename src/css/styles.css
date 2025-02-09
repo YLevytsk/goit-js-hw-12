@@ -9,4 +9,151 @@
 @import url('./base.css');
 @import url('./container.css');
 
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); 
+  gap: 24px; 
+  margin-top: 24px;
+  padding: 32px 156px 0;
+}
+
+
+.gallery-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #808080;
+ 
+  width: 360px;
+  height: 248px;
+ 
+}
+
+
+.gallery-item img {
+  width:360px;
+  height: 200px;
+  object-fit: cover;
+  display: block;
+}
+
+
+.image-info {
+  display: flex;
+  gap: auto;
+  align-items: center;
+  
+  width: 360px;
+  height: 48px;
+  background-color: white;
+  border-top: 1px solid #808080;
+  bottom: 0; left: 0;
+}
+
+.image-info .item {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  height: 40px;
+  width: auto;
+}
+
+.image-info .label {
+  font-family: var(--font-family);
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 133%;
+  letter-spacing: 0.04em;
+  color: #2e2f42;
+}
+
+.image-info .count {
+  font-family: var(--font-family);
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 200%;
+  letter-spacing: 0.04em;
+  color: #2e2f42;
+}
+
+
+.search-form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 36px;
+}
+
+.search-form input {
+  width: 272px;
+  height: 40px;
+  padding-left: 16px;
+  font-family: var(--font-family);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 150%;
+  letter-spacing: 0.04em;
+  color: #808080;
+  border: 1px solid #808080;
+  border-radius: 4px;
+  outline: none;
+}
+
+.search-form button {
+  width: 91px;
+  height: 40px;
+  background: #4e75ff;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-family: var(--font-family);
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 150%;
+  letter-spacing: 0.04em;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.search-form input:focus {
+  border-color: #4e75ff;
+  outline: none;
+}
+
+.search-form button:hover {
+  background-color: #3b63c7;
+}
+
+.loading-overlay {
+  display: none; 
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.loader {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 5px solid #ccc;
+  border-top-color: #4e75ff;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 
