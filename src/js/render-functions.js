@@ -72,7 +72,7 @@ export async function renderImages(images, append = false) {
     }
   }
 
-  if ((currentPage * perPage) >= totalHits || gallery.children.length >= totalHits) {
+  if (loadedImageIds.size >= totalHits || gallery.children.length >= totalHits) {
     loadMoreButton.style.display = 'none';
     endMessage.style.display = 'block';
   } else {
@@ -121,7 +121,7 @@ if (searchForm && searchInput) {
 }
 
 loadMoreButton.addEventListener('click', async () => {
-  if ((currentPage * perPage) >= totalHits || gallery.children.length >= totalHits) {
+  if (loadedImageIds.size >= totalHits || gallery.children.length >= totalHits) {
     loadMoreButton.style.display = 'none';
     endMessage.style.display = 'block';
     return;
