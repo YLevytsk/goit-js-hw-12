@@ -72,10 +72,11 @@ export async function renderImages(images, append = false) {
     }
   }
 
-  if (gallery.children.length >= totalHits) {
+  // Проверяем, достигли ли конца доступных изображений
+  if (gallery.children.length >= totalHits || currentPage * perPage >= totalHits) {
     loadMoreButton.style.display = 'none';
     endMessage.style.display = 'block';
-  } else if (gallery.children.length < totalHits) {
+  } else {
     loadMoreButton.style.display = 'block';
     endMessage.style.display = 'none';
   }
@@ -126,17 +127,18 @@ if (searchForm && searchInput) {
 }
 
 loadMoreButton.addEventListener('click', async () => {
+  if (gallery.children.length >= totalHits || currentPage * perPage >= totalHits) {
+    loadMoreButton.style.display = 'none';
+    endMessage.style.display = 'block';
+    return;
+  }
+
   currentPage += 1;
   showLoader();
 
   const response = await fetchImages(searchQuery, currentPage, perPage);
   if (response && response.hits.length > 0) {
     await renderImages(response.hits, true);
-  }
-  
-  if (gallery.children.length >= totalHits) {
-    loadMoreButton.style.display = 'none';
-    endMessage.style.display = 'block';
   }
   hideLoader();
 });
