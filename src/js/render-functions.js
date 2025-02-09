@@ -60,10 +60,16 @@ export function showErrorMessage() {
 }
 
 // Handling form submission
-const searchInput = document.querySelector('#search-input');
-document.querySelector('#search-form').addEventListener('submit', event => {
-  event.preventDefault();
-  const query = searchInput.value;
-  renderImages(query);
-});
+const searchForm = document.querySelector('.search-form');
+const searchInput = document.querySelector('input[name="searchQuery"]');
+
+if (searchForm && searchInput) {
+  searchForm.addEventListener('submit', event => {
+    event.preventDefault();
+    const query = searchInput.value;
+    renderImages(query);
+  });
+} else {
+  console.error('Search form or input not found in DOM');
+}
 
