@@ -73,7 +73,7 @@ export async function renderImages(images, append = false) {
   }
 
   // Проверяем, достигли ли конца доступных изображений
-  if (gallery.children.length >= totalHits || currentPage * perPage >= totalHits) {
+  if ((currentPage * perPage) >= totalHits) {
     loadMoreButton.style.display = 'none';
     endMessage.style.display = 'block';
   } else {
@@ -115,7 +115,7 @@ if (searchForm && searchInput) {
     if (response && response.hits.length > 0) {
       totalHits = response.totalHits;
       await renderImages(response.hits);
-      if (gallery.children.length < totalHits) {
+      if ((currentPage * perPage) < totalHits) {
         loadMoreButton.style.display = 'block';
       }
     } else {
@@ -127,7 +127,7 @@ if (searchForm && searchInput) {
 }
 
 loadMoreButton.addEventListener('click', async () => {
-  if (gallery.children.length >= totalHits || currentPage * perPage >= totalHits) {
+  if ((currentPage * perPage) >= totalHits) {
     loadMoreButton.style.display = 'none';
     endMessage.style.display = 'block';
     return;
