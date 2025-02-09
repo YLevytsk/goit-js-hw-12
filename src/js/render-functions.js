@@ -11,7 +11,7 @@ const lightbox = new SimpleLightbox('.gallery a', {
 export async function renderImages(query) {
   try {
     if (typeof query !== 'string') {
-      console.error('Invalid query:', query);
+      console.error('Expected a string, but received:', query);
       showErrorMessage();
       return;
     }
@@ -25,7 +25,9 @@ export async function renderImages(query) {
     gallery.innerHTML = '';
     const images = await fetchImages(trimmedQuery);
 
-    if (!images || images.length === 0) {
+    // 🛠 Дополнительная проверка, что fetchImages() вернул массив
+    if (!Array.isArray(images) || images.length === 0) {
+      console.error('Unexpected response from fetchImages:', images);
       showErrorMessage();
       return;
     }
@@ -67,9 +69,17 @@ if (searchForm && searchInput) {
   searchForm.addEventListener('submit', event => {
     event.preventDefault();
     const query = searchInput.value;
+
+    if (typeof query !== 'string' || query.trim() === '') {
+      console.error('Invalid search input:', query);
+      showErrorMessage();
+      return;
+    }
+
     renderImages(query);
   });
 } else {
   console.error('Search form or input not found in DOM');
 }
+
 
