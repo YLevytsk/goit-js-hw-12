@@ -33,9 +33,8 @@ export async function renderImages(query) {
       return;
     }
 
-    const images = response.hits; // Теперь это массив изображений
-
-    const markup = images.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => `
+    const images = response.hits;
+    gallery.innerHTML = images.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => `
       <div class="gallery-item">
         <a href="${largeImageURL}">
           <img src="${webformatURL}" alt="${tags}" loading="lazy" />
@@ -48,7 +47,6 @@ export async function renderImages(query) {
         </div>
       </div>`).join('');
 
-    gallery.innerHTML = markup;
     lightbox.refresh();
   } catch (error) {
     console.error('Error fetching images:', error);
@@ -69,18 +67,17 @@ const searchForm = document.querySelector('.search-form');
 const searchInput = document.querySelector('input[name="searchQuery"]');
 
 if (searchForm && searchInput) {
-  searchForm.addEventListener('submit', event => {
+  searchForm.addEventListener('submit', async event => {
     event.preventDefault();
     const query = searchInput.value?.trim();
 
-    // ✅ Добавлена проверка на null и пустые строки
     if (!query) {
       console.error('Invalid search input:', query);
       showErrorMessage();
       return;
     }
 
-    renderImages(query);
+    await renderImages(query);
   });
 } else {
   console.error('Search form or input not found in DOM');
