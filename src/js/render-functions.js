@@ -26,7 +26,7 @@ let loadedImageIds = new Set();
 // Скрываем кнопку и сообщение при загрузке страницы
 loadMoreButton.style.display = 'none';
 endMessage.style.display = 'none';
-gallery.innerHTML = ''; endMessage.style.display = 'none'; loadMoreButton.style.display = 'none'; // Очистка галереи при загрузке страницы
+gallery.innerHTML = ''; loadMoreButton.style.display = 'none'; endMessage.style.display = 'none'; endMessage.style.display = 'none'; loadMoreButton.style.display = 'none'; // Очистка галереи при загрузке страницы
 
 export async function renderImages(images, append = false) {
   if (!Array.isArray(images) || images.length === 0) {
@@ -34,7 +34,7 @@ export async function renderImages(images, append = false) {
   }
 
   if (!append) {
-    gallery.innerHTML = ''; endMessage.style.display = 'none'; loadMoreButton.style.display = 'none';
+    gallery.innerHTML = ''; loadMoreButton.style.display = 'none'; endMessage.style.display = 'none'; endMessage.style.display = 'none'; loadMoreButton.style.display = 'none';
     loadedImageIds.clear();
   }
 
@@ -89,7 +89,7 @@ if (searchForm && searchInput) {
     loadedImageIds.clear();
     loadMoreButton.style.display = 'none';
     endMessage.style.display = 'none';
-    gallery.innerHTML = ''; endMessage.style.display = 'none'; loadMoreButton.style.display = 'none'; // Очистка перед новым запросом
+    gallery.innerHTML = ''; loadMoreButton.style.display = 'none'; endMessage.style.display = 'none'; endMessage.style.display = 'none'; loadMoreButton.style.display = 'none'; // Очистка перед новым запросом
 
     const response = await fetchImages(searchQuery, currentPage, perPage);
     if (response && response.hits.length > 0) {
@@ -131,6 +131,7 @@ function showLoader() {
 function hideLoader() {
   loadingOverlay.style.display = 'none';
 }
+
 
 
 
