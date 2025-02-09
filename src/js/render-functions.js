@@ -5,142 +5,169 @@ import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
 const gallery = document.querySelector('.gallery');
+const loadMoreBtn = document.querySelector('.load-more');
+const searchForm = document.querySelector('.search-form');
+const searchInput = document.querySelector('input[name="searchQuery"]');
+const loader = document.querySelector('.loader');
+
+let currentPage = 1;
+let currentQuery = '';
+let totalHits = 0;
+const perPage = 40;
+
 const lightbox = new SimpleLightbox('.gallery a', {
   captionsData: 'alt',
   captionDelay: 250,
 });
-const loadMoreButton = document.querySelector('.load-more');
-const loadingOverlay = document.getElementById('loading-overlay');
-const endMessage = document.createElement('p');
-endMessage.classList.add('end-message');
-endMessage.textContent = "We're sorry, but you've reached the end of search results.";
-endMessage.style.display = 'none';
-gallery.after(endMessage);
 
-let searchQuery = '';
-let currentPage = 1;
-const perPage = 40;
-let totalHits = 0;
-let loadedImageIds = new Set();
+// Инициализация
+hideLoadMore();
+hideLoader();
 
-// Скрываем кнопку и сообщение при загрузке страницы
-loadMoreButton.style.display = 'none';
-endMessage.style.display = 'none';
-gallery.innerHTML = ''; // Очистка галереи при загрузке страницы
-
-export async function renderImages(images, append = false) {
-  if (!Array.isArray(images) || images.length === 0) {
-    showErrorMessage();
+searchForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const newQuery = searchInput.value.trim();
+  
+  if (!newQuery) {
+    showWarning('Please enter a search term!');
     return;
   }
 
-  if (!append) {
-    gallery.innerHTML = '';
-    loadedImageIds.clear();
+  if (newQuery !== currentQuery) {
+    currentQuery = newQuery;
+    currentPage = 1;
+    totalHits = 0;
+    clearGallery();
   }
 
-  const markup = images.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => `
-    <div class="gallery-item">
-      <a href="${largeImageURL}">
-        <img src="${webformatURL}" alt="${tags}" loading="lazy" />
-      </a>
-      <div class="image-info">
-        <div class="item"><span class="label">Likes</span><span class="count">${likes}</span></div>
-        <div class="item"><span class="label">Views</span><span class="count">${views}</span></div>
-        <div class="item"><span class="label">Comments</span><span class="count">${comments}</span></div>
-        <div class="item"><span class="label">Downloads</span><span class="count">${downloads}</span></div>
-      </div>
-    </div>`).join('');
+  await loadImages();
+});
 
-  gallery.insertAdjacentHTML('beforeend', markup);
-  lightbox.refresh();
+loadMoreBtn.addEventListener('click', async () => {
+  currentPage++;
+  await loadImages();
+});
 
-  // Прокрутка страницы после загрузки новых изображений
-  if (append) {
-    const firstGalleryItem = document.querySelector('.gallery-item');
-    if (firstGalleryItem) {
-      const cardHeight = firstGalleryItem.getBoundingClientRect().height;
-      window.scrollBy({ top: cardHeight * 2, behavior: 'smooth' });
+async function loadImages() {
+  try {
+    showLoader();
+    const { hits, totalHits: newTotalHits } = await fetchImages(currentQuery, currentPage, perPage);
+    
+    if (currentPage === 1) {
+      totalHits = newTotalHits;
+      showSuccess(`Hooray! We found ${totalHits} images!`);
     }
-  }
 
-  if (gallery.children.length >= totalHits) {
-    loadMoreButton.style.display = 'none';
-    endMessage.style.display = 'block';
-  } else {
-    loadMoreButton.style.display = 'block';
-    endMessage.style.display = 'none';
-  }
-}
-
-export function showErrorMessage() {
-  gallery.innerHTML = '';
-  endMessage.style.display = 'none';
-}
-
-const searchForm = document.querySelector('.search-form');
-const searchInput = document.querySelector('input[name="searchQuery"]');
-
-if (searchForm && searchInput) {
-  searchForm.addEventListener('submit', async event => {
-    event.preventDefault();
-    searchQuery = searchInput.value?.trim();
-
-    if (!searchQuery) {
-      console.error('Invalid search input:', searchQuery);
+    if (hits.length === 0) {
+      showError('Sorry, there are no images matching your search...');
       return;
     }
 
-    currentPage = 1;
-    loadedImageIds.clear();
-    loadMoreButton.style.display = 'none';
-    endMessage.style.display = 'none';
-    gallery.innerHTML = ''; // Очистка перед новым запросом
+    renderImages(hits);
+    updateLoadMoreState();
 
-    const response = await fetchImages(searchQuery, currentPage, perPage);
-    if (response && response.hits.length > 0) {
-      totalHits = Math.min(response.totalHits, 500);
-      await renderImages(response.hits);
-      if (gallery.children.length < totalHits) {
-        loadMoreButton.style.display = 'block';
-      }
-    } else {
-      showErrorMessage();
-    }
-  });
-} else {
-  console.error('Search form or input not found in DOM');
+  } catch (error) {
+    showError(error.message);
+  } finally {
+    hideLoader();
+  }
 }
 
-loadMoreButton.addEventListener('click', async () => {
-  if (gallery.children.length >= totalHits) {
-    loadMoreButton.style.display = 'none';
-    endMessage.style.display = 'block';
-    return;
-  }
+function renderImages(images) {
+  const markup = images.map(image => `
+    <div class="gallery-item">
+      <a href="${image.largeImageURL}">
+        <img src="${image.webformatURL}" alt="${image.tags}" loading="lazy" />
+      </a>
+      <div class="info">
+        <p class="info-item"><b>Likes:</b> ${image.likes}</p>
+        <p class="info-item"><b>Views:</b> ${image.views}</p>
+        <p class="info-item"><b>Comments:</b> ${image.comments}</p>
+        <p class="info-item"><b>Downloads:</b> ${image.downloads}</p>
+      </div>
+    </div>
+  `).join('');
 
-  currentPage += 1;
-  showLoader();
+  gallery.insertAdjacentHTML('beforeend', markup);
+  lightbox.refresh();
+}
 
-  const response = await fetchImages(searchQuery, currentPage, perPage);
-  if (response && response.hits.length > 0) {
-    await renderImages(response.hits, true);
+function updateLoadMoreState() {
+  const loadedCount = currentPage * perPage;
+  
+  if (loadedCount >= totalHits) {
+    hideLoadMore();
+    showEndMessage();
+    smoothScroll();
   } else {
-    loadMoreButton.style.display = 'none';
-    endMessage.style.display = 'block';
+    showLoadMore();
   }
-  hideLoader();
-});
+}
+
+// Вспомогательные функции
+function clearGallery() {
+  gallery.innerHTML = '';
+}
+
+function smoothScroll() {
+  const { height: cardHeight } = document
+    .querySelector('.gallery-item')
+    .getBoundingClientRect();
+
+  window.scrollBy({
+    top: cardHeight * 2,
+    behavior: 'smooth',
+  });
+}
+
+function showLoadMore() {
+  loadMoreBtn.classList.remove('hidden');
+}
+
+function hideLoadMore() {
+  loadMoreBtn.classList.add('hidden');
+}
 
 function showLoader() {
-  loadingOverlay.style.display = 'block';
+  loader.classList.remove('hidden');
 }
 
 function hideLoader() {
-  loadingOverlay.style.display = 'none';
+  loader.classList.add('hidden');
 }
 
+function showEndMessage() {
+  iziToast.info({
+    title: 'Info',
+    message: "We're sorry, but you've reached the end of search results.",
+    position: 'topRight'
+  });
+}
 
+function showWarning(message) {
+  iziToast.warning({
+    title: 'Warning',
+    message,
+    position: 'topRight'
+  });
+}
+
+function showError(message) {
+  iziToast.error({
+    title: 'Error',
+    message,
+    position: 'topRight'
+  });
+  hideLoadMore();
+}
+
+function showSuccess(message) {
+  iziToast.success({
+    title: 'Success',
+    message,
+    position: 'topRight'
+  });
+}
 
 
 
