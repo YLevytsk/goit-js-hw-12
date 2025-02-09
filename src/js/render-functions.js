@@ -16,6 +16,7 @@ let searchQuery = '';
 let currentPage = 1;
 const perPage = 40;
 let totalHits = 0;
+let loadedImageIds = new Set(); // Храним ID загруженных изображений
 
 export function renderImages(images, append = false) {
   if (!Array.isArray(images) || images.length === 0) {
@@ -23,11 +24,20 @@ export function renderImages(images, append = false) {
     return;
   }
 
+  const uniqueImages = images.filter(image => {
+    if (!loadedImageIds.has(image.id)) {
+      loadedImageIds.add(image.id);
+      return true;
+    }
+    return false;
+  });
+
   if (!append) {
     gallery.innerHTML = '';
+    loadedImageIds.clear(); // Очистка при новом поиске
   }
 
-  gallery.innerHTML += images.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => `
+  gallery.innerHTML += uniqueImages.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => `
     <div class="gallery-item">
       <a href="${largeImageURL}">
         <img src="${webformatURL}" alt="${tags}" loading="lazy" />
@@ -42,7 +52,6 @@ export function renderImages(images, append = false) {
 
   lightbox.refresh();
 
-  // Проверяем, достигли ли конца коллекции
   if (gallery.children.length >= totalHits) {
     loadMoreButton.style.display = 'none';
     iziToast.info({
@@ -64,7 +73,6 @@ export function showErrorMessage() {
   loadMoreButton.style.display = 'none';
 }
 
-// Handling form submission
 const searchForm = document.querySelector('.search-form');
 const searchInput = document.querySelector('input[name="searchQuery"]');
 
@@ -79,6 +87,7 @@ if (searchForm && searchInput) {
     }
 
     currentPage = 1;
+    loadedImageIds.clear(); // Очищаем список загруженных изображений при новом поиске
     loadMoreButton.style.display = 'none';
 
     const response = await fetchImages(searchQuery, currentPage, perPage);
@@ -93,7 +102,6 @@ if (searchForm && searchInput) {
   console.error('Search form or input not found in DOM');
 }
 
-// Load more images
 loadMoreButton.addEventListener('click', async () => {
   if (gallery.children.length >= totalHits) {
     loadMoreButton.style.display = 'none';
@@ -105,7 +113,7 @@ loadMoreButton.addEventListener('click', async () => {
     return;
   }
 
-  currentPage += 1; // Увеличиваем номер страницы
+  currentPage += 1;
   showLoader();
 
   const response = await fetchImages(searchQuery, currentPage, perPage);
@@ -115,7 +123,6 @@ loadMoreButton.addEventListener('click', async () => {
   hideLoader();
 });
 
-// Функции для показа/скрытия индикатора загрузки
 function showLoader() {
   loadingOverlay.style.display = 'block';
 }
@@ -123,6 +130,7 @@ function showLoader() {
 function hideLoader() {
   loadingOverlay.style.display = 'none';
 }
+
 
 
 
