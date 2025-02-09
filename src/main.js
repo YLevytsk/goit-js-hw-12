@@ -18,7 +18,7 @@ function hideLoader() {
 async function loadRandomImages() {
   showLoader();
   try {
-    const randomQuery = 'nature,technology,art,food,travel'; // Пример случайных категорий
+    const randomQuery = 'nature,technology,art,food,travel'; 
     const images = await fetchImages(randomQuery);
     renderImages(images);
   } catch (error) {
