@@ -27,7 +27,7 @@ export async function renderImages(query) {
     const response = await fetchImages(trimmedQuery);
 
     // ✅ Исправлена проверка ответа API
-    if (!response || !Array.isArray(response.hits) || response.hits.length === 0) {
+    if (!response || !response.hits || !Array.isArray(response.hits) || response.hits.length === 0) {
       console.error('Unexpected response from fetchImages:', response);
       showErrorMessage();
       return;
@@ -71,10 +71,10 @@ const searchInput = document.querySelector('input[name="searchQuery"]');
 if (searchForm && searchInput) {
   searchForm.addEventListener('submit', event => {
     event.preventDefault();
-    const query = searchInput.value;
+    const query = searchInput.value?.trim();
 
     // ✅ Добавлена проверка на null и пустые строки
-    if (!query || typeof query !== 'string' || query.trim() === '') {
+    if (!query) {
       console.error('Invalid search input:', query);
       showErrorMessage();
       return;
