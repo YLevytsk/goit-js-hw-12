@@ -15,7 +15,7 @@ const endMessage = document.createElement('p');
 endMessage.classList.add('end-message');
 endMessage.textContent = "We're sorry, but you've reached the end of search results.";
 endMessage.style.display = 'none';
-gallery.after(endMessage);
+document.body.appendChild(endMessage);
 
 let searchQuery = '';
 let currentPage = 1;
@@ -63,7 +63,16 @@ export async function renderImages(images, append = false) {
   gallery.insertAdjacentHTML('beforeend', markup);
   lightbox.refresh();
 
-  if (gallery.children.length >= totalHits) {
+  // Прокрутка страницы после загрузки новых изображений
+  if (append) {
+    const firstGalleryItem = document.querySelector('.gallery-item');
+    if (firstGalleryItem) {
+      const cardHeight = firstGalleryItem.getBoundingClientRect().height;
+      window.scrollBy({ top: cardHeight * 2, behavior: 'smooth' });
+    }
+  }
+
+  if (gallery.children.length >= totalHits && totalHits > 0) {
     loadMoreButton.style.display = 'none';
     endMessage.style.display = 'block';
   } else if (gallery.children.length >= perPage) {
@@ -117,17 +126,18 @@ if (searchForm && searchInput) {
 }
 
 loadMoreButton.addEventListener('click', async () => {
+  if (gallery.children.length >= totalHits && totalHits > 0) {
+    loadMoreButton.style.display = 'none';
+    endMessage.style.display = 'block';
+    return;
+  }
+
   currentPage += 1;
   showLoader();
 
   const response = await fetchImages(searchQuery, currentPage, perPage);
   if (response && response.hits.length > 0) {
     await renderImages(response.hits, true);
-  }
-  
-  if (gallery.children.length >= totalHits) {
-    loadMoreButton.style.display = 'none';
-    endMessage.style.display = 'block';
   }
   hideLoader();
 });
