@@ -18,6 +18,9 @@ const perPage = 40;
 let totalHits = 0;
 let loadedImageIds = new Set();
 
+// Скрываем кнопку загрузки при старте
+loadMoreButton.style.display = 'none';
+
 export function renderImages(images, append = false) {
   if (!Array.isArray(images) || images.length === 0) {
     showErrorMessage();
@@ -91,9 +94,10 @@ if (searchForm && searchInput) {
     loadMoreButton.style.display = 'none';
 
     const response = await fetchImages(searchQuery, currentPage, perPage);
-    if (response && response.hits) {
+    if (response && response.hits.length > 0) {
       totalHits = response.totalHits;
       renderImages(response.hits);
+      loadMoreButton.style.display = 'block'; // Показываем кнопку только если найдены изображения
     } else {
       showErrorMessage();
     }
