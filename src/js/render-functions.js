@@ -10,7 +10,7 @@ const lightbox = new SimpleLightbox('.gallery a', {
 
 export async function renderImages(query) {
   try {
-    if (typeof query !== 'string') {
+    if (!query || typeof query !== 'string') {
       console.error('Expected a string, but received:', query);
       showErrorMessage();
       return;
@@ -23,14 +23,17 @@ export async function renderImages(query) {
     }
 
     gallery.innerHTML = '';
-    const images = await fetchImages(trimmedQuery);
 
-    // 🛠 Дополнительная проверка, что fetchImages() вернул массив
-    if (!Array.isArray(images) || images.length === 0) {
-      console.error('Unexpected response from fetchImages:', images);
+    const response = await fetchImages(trimmedQuery);
+
+    // ✅ Исправлена проверка ответа API
+    if (!response || !Array.isArray(response.hits) || response.hits.length === 0) {
+      console.error('Unexpected response from fetchImages:', response);
       showErrorMessage();
       return;
     }
+
+    const images = response.hits; // Теперь это массив изображений
 
     const markup = images.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => `
       <div class="gallery-item">
@@ -70,7 +73,8 @@ if (searchForm && searchInput) {
     event.preventDefault();
     const query = searchInput.value;
 
-    if (typeof query !== 'string' || query.trim() === '') {
+    // ✅ Добавлена проверка на null и пустые строки
+    if (!query || typeof query !== 'string' || query.trim() === '') {
       console.error('Invalid search input:', query);
       showErrorMessage();
       return;

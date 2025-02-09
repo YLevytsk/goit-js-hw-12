@@ -21,17 +21,23 @@ async function loadRandomImages() {
   showLoader();
   try {
     const categories = ['nature', 'technology', 'art', 'food', 'travel'];
-    const randomQuery = categories[Math.floor(Math.random() * categories.length)]; // Выбираем случайную тему
+    const randomQuery = categories[Math.floor(Math.random() * categories.length)];
     console.log(`Fetching images for: ${randomQuery}`);
 
     const response = await fetchImages(randomQuery);
 
-    // ✅ Проверяем, что API вернул корректный объект
-    if (!response || !response.hits || !Array.isArray(response.hits) || response.hits.length === 0) {
-      throw new Error('No images found');
+    // ✅ Теперь корректно проверяем, есть ли данные
+    if (!response || !response.hits || response.hits.length === 0) {
+      iziToast.warning({
+        title: 'Info',
+        message: `No images found for query: ${randomQuery}. Try another one.`,
+        position: 'topRight'
+      });
+      return;
     }
 
-    renderImages(response.hits);
+    console.log(`Fetched ${response.hits.length} images for query: ${randomQuery}`);
+    renderImages(response.hits); // ✅ Теперь точно передаём массив изображений
   } catch (error) {
     iziToast.error({
       title: 'Error',
@@ -68,7 +74,7 @@ form.addEventListener('submit', async event => {
     const response = await fetchImages(query);
 
     // ✅ Проверяем, что API вернул корректный объект
-    if (!response || !response.hits || !Array.isArray(response.hits) || response.hits.length === 0) {
+    if (!response || !response.hits || response.hits.length === 0) {
       iziToast.info({
         title: 'Info',
         message: 'No images found for your query.',
@@ -77,6 +83,7 @@ form.addEventListener('submit', async event => {
       return;
     }
 
+    console.log(`Fetched ${response.hits.length} images for query: ${query}`);
     renderImages(response.hits);
   } catch (error) {
     iziToast.error({
@@ -89,4 +96,5 @@ form.addEventListener('submit', async event => {
     hideLoader();
   }
 });
+
 
