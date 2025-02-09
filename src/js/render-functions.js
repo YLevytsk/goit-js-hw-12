@@ -7,14 +7,27 @@ const lightbox = new SimpleLightbox('.gallery a', {
   captionsData: 'alt',
   captionDelay: 250,
 });
+const loadMoreButton = document.createElement('button');
+loadMoreButton.textContent = 'Load more';
+loadMoreButton.classList.add('load-more');
+loadMoreButton.style.display = 'none';
+document.body.appendChild(loadMoreButton);
 
-export function renderImages(images) {
+let searchQuery = '';
+let currentPage = 1;
+const perPage = 40;
+
+export function renderImages(images, append = false) {
   if (!Array.isArray(images) || images.length === 0) {
     showErrorMessage();
     return;
   }
 
-  gallery.innerHTML = images.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => `
+  if (!append) {
+    gallery.innerHTML = '';
+  }
+
+  gallery.innerHTML += images.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => `
     <div class="gallery-item">
       <a href="${largeImageURL}">
         <img src="${webformatURL}" alt="${tags}" loading="lazy" />
@@ -28,6 +41,8 @@ export function renderImages(images) {
     </div>`).join('');
 
   lightbox.refresh();
+
+  loadMoreButton.style.display = images.length < perPage ? 'none' : 'block';
 }
 
 export function showErrorMessage() {
@@ -36,6 +51,7 @@ export function showErrorMessage() {
       Sorry, no images match your search. Please try again!
     </p>
   `;
+  loadMoreButton.style.display = 'none';
 }
 
 // Handling form submission
@@ -45,25 +61,19 @@ const searchInput = document.querySelector('input[name="searchQuery"]');
 if (searchForm && searchInput) {
   searchForm.addEventListener('submit', async event => {
     event.preventDefault();
-    const query = searchInput.value?.trim();
+    searchQuery = searchInput.value?.trim();
 
-    if (!query) {
-      console.error('Invalid search input:', query);
-      return; // 🔹 Теперь сообщение не отображается при пустом запросе
+    if (!searchQuery) {
+      console.error('Invalid search input:', searchQuery);
+      return;
     }
 
-    const response = await fetchImages(query);
+    currentPage = 1;
+    loadMoreButton.style.display = 'none';
+
+    const response = await fetchImages(searchQuery, currentPage, perPage);
     if (response && response.hits) {
-      // 🔹 Фильтрация изображений: оставляем только те, у которых главный тег содержит искомое слово полностью
-      const filteredImages = response.hits.filter(image => {
-        return image.tags.toLowerCase().split(', ').some(tag => tag === query.toLowerCase());
-      });
-      
-      if (filteredImages.length === 0) {
-        showErrorMessage();
-      } else {
-        renderImages(filteredImages);
-      }
+      renderImages(response.hits);
     } else {
       showErrorMessage();
     }
@@ -72,22 +82,16 @@ if (searchForm && searchInput) {
   console.error('Search form or input not found in DOM');
 }
 
-// Load initial random images
-async function loadInitialImages() {
-  try {
-    const response = await fetchImages(''); // Загружаем популярные фото без категории
-    if (response && response.hits) {
-      renderImages(response.hits);
-    } else {
-      showErrorMessage();
-    }
-  } catch (error) {
-    console.error('Error fetching initial images:', error);
-    showErrorMessage();
+// Load more images
+loadMoreButton.addEventListener('click', async () => {
+  currentPage += 1;
+  const response = await fetchImages(searchQuery, currentPage, perPage);
+  if (response && response.hits) {
+    renderImages(response.hits, true);
+  } else {
+    loadMoreButton.style.display = 'none';
   }
-}
-
-loadInitialImages();
+});
 
 
 
