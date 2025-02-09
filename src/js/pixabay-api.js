@@ -6,53 +6,42 @@ const API_KEY = '48661000-87492d5612d6e41eb1a42ef3d';
 const BASE_URL = 'https://pixabay.com/api/';
 
 export async function fetchImages(query) {
-  if (!query || query.trim() === '') {
+  if (!query || typeof query !== 'string' || query.trim() === '') {
     iziToast.warning({
       title: 'Warning',
       message: 'Please enter a search term!',
       position: 'topRight'
     });
-    return [];
+    return null;
   }
 
   try {
     const response = await axios.get(BASE_URL, {
       params: {
         key: API_KEY,
-        q: encodeURIComponent(query), // 🔹 Кодируем запрос
+        q: encodeURIComponent(query),
         image_type: 'photo',
         orientation: 'horizontal',
         safesearch: true,
-        per_page: 20 // 🔹 Число изображений на страницу
+        per_page: 40 // ✅ Теперь загружаем 40 изображений для полной галереи
       },
     });
 
-    console.log('API Response:', response.data); // 🔹 Логируем ответ API
+    console.log('API Response:', response.data); // Лог ответа API
 
     if (response.status !== 200) {
       throw new Error(`API error: ${response.status}`);
     }
 
-    if (response.data.totalHits > 0) {
-      return response.data.hits;
-    } else {
-      iziToast.warning({
-        title: 'Info',
-        message: 'No images found. Please try another search term.',
-        position: 'topRight'
-      });
-      return [];
-    }
+    return response.data; // ✅ Возвращаем объект API, а не только hits
   } catch (error) {
-    console.error('Error fetching images:', error); // 🔹 Логируем ошибку
-
+    console.error('Error fetching images:', error);
     iziToast.error({
       title: 'Error',
       message: 'Failed to load images. Please try again.',
       position: 'topRight'
     });
-
-    return [];
+    return null;
   }
 }
 
