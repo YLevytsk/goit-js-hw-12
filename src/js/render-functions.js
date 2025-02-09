@@ -11,6 +11,11 @@ const lightbox = new SimpleLightbox('.gallery a', {
 });
 const loadMoreButton = document.querySelector('.load-more');
 const loadingOverlay = document.getElementById('loading-overlay');
+const endMessage = document.createElement('p');
+endMessage.classList.add('end-message');
+endMessage.textContent = "We're sorry, but you've reached the end of search results.";
+endMessage.style.display = 'none';
+document.body.appendChild(endMessage);
 
 let searchQuery = '';
 let currentPage = 1;
@@ -55,11 +60,12 @@ export function renderImages(images, append = false) {
 
   lightbox.refresh();
 
-  // Показываем кнопку загрузки только если загружено менее totalHits и больше 30 изображений
-  if (gallery.children.length >= totalHits || gallery.children.length < 30) {
+  if (gallery.children.length >= totalHits && currentPage > 1) {
     loadMoreButton.style.display = 'none';
+    endMessage.style.display = 'block';
   } else {
-    loadMoreButton.style.display = 'block';
+    loadMoreButton.style.display = gallery.children.length < 30 ? 'none' : 'block';
+    endMessage.style.display = 'none';
   }
 }
 
@@ -88,6 +94,7 @@ if (searchForm && searchInput) {
     currentPage = 1;
     loadedImageIds.clear();
     loadMoreButton.style.display = 'none';
+    endMessage.style.display = 'none';
 
     const response = await fetchImages(searchQuery, currentPage, perPage);
     if (response && response.hits.length > 0) {
@@ -104,11 +111,7 @@ if (searchForm && searchInput) {
 loadMoreButton.addEventListener('click', async () => {
   if (gallery.children.length >= totalHits) {
     loadMoreButton.style.display = 'none';
-    iziToast.info({
-      title: 'Info',
-      message: "We're sorry, but you've reached the end of search results.",
-      position: 'topRight',
-    });
+    endMessage.style.display = 'block';
     return;
   }
 
