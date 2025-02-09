@@ -1,5 +1,6 @@
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
+import { fetchImages } from './pixabay-api';
 
 const gallery = document.querySelector('.gallery');
 const lightbox = new SimpleLightbox('.gallery a', {
@@ -36,6 +37,60 @@ export function showErrorMessage() {
     </p>
   `;
 }
+
+// Handling form submission
+const searchForm = document.querySelector('.search-form');
+const searchInput = document.querySelector('input[name="searchQuery"]');
+
+if (searchForm && searchInput) {
+  searchForm.addEventListener('submit', async event => {
+    event.preventDefault();
+    const query = searchInput.value?.trim();
+
+    if (!query) {
+      console.error('Invalid search input:', query);
+      showErrorMessage();
+      return;
+    }
+
+    const response = await fetchImages(query);
+    if (response && response.hits) {
+      // 🔹 Фильтрация изображений: оставляем только те, у которых главный тег совпадает с запросом
+      const filteredImages = response.hits.filter(image => {
+        const tagsArray = image.tags.toLowerCase().split(', ').map(tag => tag.trim());
+        return tagsArray.includes(query.toLowerCase());
+      });
+      
+      if (filteredImages.length === 0) {
+        showErrorMessage();
+      } else {
+        renderImages(filteredImages);
+      }
+    } else {
+      showErrorMessage();
+    }
+  });
+} else {
+  console.error('Search form or input not found in DOM');
+}
+
+// Load initial random images
+async function loadInitialImages() {
+  try {
+    const response = await fetchImages('popular'); // Загружаем популярные фото без категории
+    if (response && response.hits) {
+      renderImages(response.hits);
+    } else {
+      showErrorMessage();
+    }
+  } catch (error) {
+    console.error('Error fetching initial images:', error);
+    showErrorMessage();
+  }
+}
+
+loadInitialImages();
+
 
 
 
