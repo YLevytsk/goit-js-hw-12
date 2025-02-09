@@ -18,7 +18,7 @@ const perPage = 40;
 let totalHits = 0;
 let loadedImageIds = new Set();
 
-// Скрываем кнопку загрузки при старте
+// Изначально скрываем кнопку загрузки
 loadMoreButton.style.display = 'none';
 
 export function renderImages(images, append = false) {
@@ -55,13 +55,9 @@ export function renderImages(images, append = false) {
 
   lightbox.refresh();
 
-  if (gallery.children.length >= totalHits && currentPage > 1) {
+  // Показываем кнопку загрузки только если загружено менее totalHits и больше 30 изображений
+  if (gallery.children.length >= totalHits || gallery.children.length < 30) {
     loadMoreButton.style.display = 'none';
-    iziToast.info({
-      title: 'Info',
-      message: "We're sorry, but you've reached the end of search results.",
-      position: 'topRight',
-    });
   } else {
     loadMoreButton.style.display = 'block';
   }
@@ -97,7 +93,6 @@ if (searchForm && searchInput) {
     if (response && response.hits.length > 0) {
       totalHits = response.totalHits;
       renderImages(response.hits);
-      loadMoreButton.style.display = 'block'; // Показываем кнопку только если найдены изображения
     } else {
       showErrorMessage();
     }
@@ -134,6 +129,7 @@ function showLoader() {
 function hideLoader() {
   loadingOverlay.style.display = 'none';
 }
+
 
 
 
