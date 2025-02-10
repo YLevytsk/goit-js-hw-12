@@ -5,12 +5,6 @@ import 'izitoast/dist/css/iziToast.min.css';
 
 const gallery = document.querySelector('.gallery');
 const form = document.querySelector('.search-form');
-const loadMoreButton = document.querySelector('.load-more');
-
-let searchQuery = '';
-let currentPage = 1;
-const perPage = 40;
-let totalHits = 0;
 
 // Функция для показа загрузочного индикатора
 function showLoader() {
@@ -22,12 +16,50 @@ function hideLoader() {
   document.getElementById('loading-overlay').style.display = 'none';
 }
 
+// 🔹 Функция для загрузки случайных фото
+async function loadRandomImages() {
+  showLoader();
+  try {
+    const categories = ['nature', 'technology', 'art', 'food', 'travel'];
+    const randomQuery = categories[Math.floor(Math.random() * categories.length)];
+    console.log(`Fetching images for: ${randomQuery}`);
+
+    const response = await fetchImages(randomQuery);
+
+    // ✅ Теперь корректно проверяем, есть ли данные
+    if (!response || !response.hits || response.hits.length === 0) {
+      iziToast.warning({
+        title: 'Info',
+        message: `No images found for query: ${randomQuery}. Try another one.`,
+        position: 'topRight'
+      });
+      return;
+    }
+
+    console.log(`Fetched ${response.hits.length} images for query: ${randomQuery}`);
+    renderImages(response.hits); // ✅ Теперь точно передаём массив изображений
+  } catch (error) {
+    iziToast.error({
+      title: 'Error',
+      message: 'Failed to load images. Please try again.',
+      position: 'topRight',
+    });
+    console.error('Error fetching random images:', error);
+  } finally {
+    hideLoader();
+  }
+}
+
+// 🔹 Загружаем случайные фото при загрузке страницы
+loadRandomImages();
+
 // 🔹 Обработчик отправки формы
 form.addEventListener('submit', async event => {
   event.preventDefault();
-  searchQuery = event.target.elements.searchQuery.value.trim();
 
-  if (!searchQuery) {
+  const query = event.target.elements.searchQuery.value.trim();
+
+  if (!query) {
     iziToast.warning({
       title: 'Warning',
       message: 'Please enter a search term!',
@@ -37,32 +69,22 @@ form.addEventListener('submit', async event => {
   }
 
   showLoader();
-  currentPage = 1; // Сбрасываем страницу при новом поиске
-  gallery.innerHTML = ''; // Очищаем галерею
 
   try {
-    const response = await fetchImages(searchQuery, currentPage, perPage);
+    const response = await fetchImages(query);
 
+    // ✅ Проверяем, что API вернул корректный объект
     if (!response || !response.hits || response.hits.length === 0) {
       iziToast.info({
         title: 'Info',
         message: 'No images found for your query.',
         position: 'topRight',
       });
-      loadMoreButton.style.display = 'none';
       return;
     }
 
-    totalHits = response.totalHits;
-    console.log(`Fetched ${response.hits.length} images for query: ${searchQuery}`);
+    console.log(`Fetched ${response.hits.length} images for query: ${query}`);
     renderImages(response.hits);
-
-    // Показать кнопку Load More, если есть еще результаты
-    if (totalHits > perPage) {
-      loadMoreButton.style.display = 'block';
-    } else {
-      loadMoreButton.style.display = 'none';
-    }
   } catch (error) {
     iziToast.error({
       title: 'Error',
@@ -70,34 +92,6 @@ form.addEventListener('submit', async event => {
       position: 'topRight',
     });
     console.error('Error fetching search images:', error);
-  } finally {
-    hideLoader();
-  }
-});
-
-// 🔹 Обработчик кнопки Load More
-loadMoreButton.addEventListener('click', async () => {
-  if (gallery.children.length >= totalHits) {
-    loadMoreButton.style.display = 'none';
-    return;
-  }
-
-  currentPage += 1;
-  showLoader();
-
-  try {
-    const response = await fetchImages(searchQuery, currentPage, perPage);
-    
-    if (response && response.hits.length > 0) {
-      renderImages(response.hits, true);
-    }
-
-    // Скрываем кнопку, если загрузили все изображения
-    if (gallery.children.length >= totalHits) {
-      loadMoreButton.style.display = 'none';
-    }
-  } catch (error) {
-    console.error('Error loading more images:', error);
   } finally {
     hideLoader();
   }

@@ -13,7 +13,7 @@ const loadMoreButton = document.querySelector('.load-more');
 const loadingOverlay = document.getElementById('loading-overlay');
 const endMessage = document.createElement('p');
 endMessage.classList.add('end-message');
-endMessage.textContent = "We're sorry, but you've reached the end of search results...";
+endMessage.textContent = "We're sorry, but you've reached the end of search results.";
 endMessage.style.display = 'none';
 gallery.after(endMessage);
 
@@ -77,6 +77,8 @@ const searchInput = document.querySelector('input[name="searchQuery"]');
 
 if (searchForm && searchInput) {
   searchForm.addEventListener('submit', async event => {
+    if (event.defaultPrevented) return; // Предотвращаем дублирование запросов
+    event.preventDefault();
     event.preventDefault();
     searchQuery = searchInput.value?.trim();
 
@@ -105,6 +107,8 @@ if (searchForm && searchInput) {
 }
 
 loadMoreButton.addEventListener('click', async () => {
+    if (event.defaultPrevented) return; // Предотвращаем дублирование кликов
+    event.preventDefault();
   if (gallery.children.length >= totalHits) {
     loadMoreButton.style.display = 'none';
     if (gallery.children.length > 0) { endMessage.style.display = 'block'; }
@@ -131,6 +135,7 @@ function showLoader() {
 function hideLoader() {
   loadingOverlay.style.display = 'none';
 }
+
 
 
 
