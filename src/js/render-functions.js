@@ -17,6 +17,7 @@ let currentPage = 1;
 const perPage = 40;
 let totalHits = 0;
 let loadedImageIds = new Set();
+let isFetching = false; // ✅ Флаг предотвращает дублирование запросов
 
 // Скрываем кнопку при загрузке страницы
 loadMoreButton.style.display = 'none';
@@ -33,7 +34,16 @@ export async function renderImages(images, append = false) {
     loadedImageIds.clear();
   }
 
-  const markup = images.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => `
+  // ✅ Фильтруем дублирующиеся изображения
+  const uniqueImages = images.filter(({ id }) => {
+    if (!loadedImageIds.has(id)) {
+      loadedImageIds.add(id);
+      return true;
+    }
+    return false;
+  });
+
+  const markup = uniqueImages.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => `
     <div class="gallery-item">
       <a href="${largeImageURL}">
         <img src="${webformatURL}" alt="${tags}" loading="lazy" />
@@ -70,7 +80,7 @@ const searchInput = document.querySelector('input[name="searchQuery"]');
 
 if (searchForm && searchInput) {
   searchForm.addEventListener('submit', async event => {
-    if (event.defaultPrevented) return; // Предотвращаем дублирование запросов
+    if (isFetching) return; // ✅ Защита от дублирующихся запросов
     event.preventDefault();
     searchQuery = searchInput.value?.trim();
 
@@ -79,42 +89,52 @@ if (searchForm && searchInput) {
       return;
     }
 
+    isFetching = true;
     currentPage = 1;
     loadedImageIds.clear();
     loadMoreButton.style.display = 'none';
     gallery.innerHTML = ''; 
 
-    const response = await fetchImages(searchQuery, currentPage, perPage);
-    if (response && response.hits.length > 0) {
-      totalHits = Math.min(response.totalHits, 500);
-      await renderImages(response.hits);
-      if (gallery.children.length < totalHits) {
-        loadMoreButton.style.display = 'block';
+    try {
+      const response = await fetchImages(searchQuery, currentPage, perPage);
+      if (response && response.hits.length > 0) {
+        totalHits = Math.min(response.totalHits, 500);
+        await renderImages(response.hits);
+        if (gallery.children.length < totalHits) {
+          loadMoreButton.style.display = 'block';
+        }
       }
+    } catch (error) {
+      console.error('Error fetching images:', error);
+    } finally {
+      isFetching = false;
     }
   });
 } else {
   console.error('Search form or input not found in DOM');
 }
 
-loadMoreButton.addEventListener('click', async () => {
-    if (event.defaultPrevented) return; // Предотвращаем дублирование кликов
-    event.preventDefault();
-  if (gallery.children.length >= totalHits) {
-    loadMoreButton.style.display = 'none';
-    return;
-  }
+loadMoreButton.addEventListener('click', async (event) => {
+  if (isFetching || gallery.children.length >= totalHits) return; // ✅ Фильтрация повторных кликов
+  event.preventDefault();
 
+  isFetching = true;
   currentPage += 1;
   showLoader();
 
-  const response = await fetchImages(searchQuery, currentPage, perPage);
-  if (response && response.hits.length > 0) {
-    await renderImages(response.hits, true);
-  } else {
-    loadMoreButton.style.display = 'none';
+  try {
+    const response = await fetchImages(searchQuery, currentPage, perPage);
+    if (response && response.hits.length > 0) {
+      await renderImages(response.hits, true);
+    } else {
+      loadMoreButton.style.display = 'none';
+    }
+  } catch (error) {
+    console.error('Error loading more images:', error);
+  } finally {
+    hideLoader();
+    isFetching = false;
   }
-  hideLoader();
 });
 
 function showLoader() {
@@ -124,6 +144,7 @@ function showLoader() {
 function hideLoader() {
   loadingOverlay.style.display = 'none';
 }
+
 
 
 
