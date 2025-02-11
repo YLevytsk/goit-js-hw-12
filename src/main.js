@@ -13,8 +13,6 @@ let currentPage = 1;
 const perPage = 40;
 let totalHits = 0;
 
-// **❌ УБРАН ЛОАДЕР ПЕРЕД SimpleLightbox**
-
 // **🔹 Скрываем кнопку и сообщение при загрузке страницы**
 hideLoadMoreButton();
 hideEndMessage();
@@ -22,7 +20,7 @@ hideEndMessage();
 // **🔹 Обработчик отправки формы**
 form.addEventListener('submit', async event => {
   event.preventDefault();
-  
+
   searchQuery = event.target.elements.searchQuery.value.trim();
   if (!searchQuery) {
     iziToast.warning({ title: 'Warning', message: 'Please enter a search term!', position: 'topRight' });
@@ -76,7 +74,6 @@ loadMoreButton.addEventListener('click', async () => {
     console.error('Error loading more images:', error);
   }
 });
-
 
 
 
