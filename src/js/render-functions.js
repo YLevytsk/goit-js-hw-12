@@ -1,5 +1,8 @@
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
+import { fetchImages } from './pixabay-api';
+import iziToast from 'izitoast';
+import 'izitoast/dist/css/iziToast.min.css';
 
 const gallery = document.querySelector('.gallery');
 const lightbox = new SimpleLightbox('.gallery a', {
@@ -7,24 +10,40 @@ const lightbox = new SimpleLightbox('.gallery a', {
   captionDelay: 250,
 });
 const loadMoreButton = document.querySelector('.load-more');
-const endMessage = document.querySelector('.end-message'); // Сообщение в HTML
+const loadingOverlay = document.getElementById('loading-overlay');
 
-export function clearGallery() {
-  gallery.innerHTML = '';
-}
+let searchQuery = '';
+let currentPage = 1;
+const perPage = 40;
+let totalHits = 0;
+let loadedImageIds = new Set();
+let isFetching = false; // ✅ Флаг предотвращает дублирование запросов
 
-export function renderImages(images, append = false, totalHits) {
+// Скрываем кнопку при загрузке страницы
+loadMoreButton.style.display = 'none';
+gallery.innerHTML = ''; 
+
+export async function renderImages(images, append = false) {
   if (!Array.isArray(images) || images.length === 0) {
     return;
   }
 
   if (!append) {
-    clearGallery(); 
-    hideLoadMoreButton();
-    hideEndMessage();
+    gallery.innerHTML = ''; 
+    loadMoreButton.style.display = 'none';
+    loadedImageIds.clear();
   }
 
-  const markup = images.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => `
+  // ✅ Фильтруем дублирующиеся изображения
+  const uniqueImages = images.filter(({ id }) => {
+    if (!loadedImageIds.has(id)) {
+      loadedImageIds.add(id);
+      return true;
+    }
+    return false;
+  });
+
+  const markup = uniqueImages.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => `
     <div class="gallery-item">
       <a href="${largeImageURL}">
         <img src="${webformatURL}" alt="${tags}" loading="lazy" />
@@ -49,31 +68,81 @@ export function renderImages(images, append = false, totalHits) {
     }
   }
 
-  // Управление кнопкой "Load More" и сообщением
   if (gallery.children.length >= totalHits) {
-    hideLoadMoreButton();
-    showEndMessage();
+    loadMoreButton.style.display = 'none';
   } else {
-    showLoadMoreButton();
-    hideEndMessage();
+    loadMoreButton.style.display = 'block';
   }
 }
 
-// 🔹 Функции для управления интерфейсом (скрытие/показ кнопки и сообщения)
-export function showLoadMoreButton() {
-  loadMoreButton.style.display = 'block';
+const searchForm = document.querySelector('.search-form');
+const searchInput = document.querySelector('input[name="searchQuery"]');
+
+if (searchForm && searchInput) {
+  searchForm.addEventListener('submit', async event => {
+    if (isFetching) return; // ✅ Защита от дублирующихся запросов
+    event.preventDefault();
+    searchQuery = searchInput.value?.trim();
+
+    if (!searchQuery) {
+      console.error('Invalid search input:', searchQuery);
+      return;
+    }
+
+    isFetching = true;
+    currentPage = 1;
+    loadedImageIds.clear();
+    loadMoreButton.style.display = 'none';
+    gallery.innerHTML = ''; 
+
+    try {
+      const response = await fetchImages(searchQuery, currentPage, perPage);
+      if (response && response.hits.length > 0) {
+        totalHits = Math.min(response.totalHits, 500);
+        await renderImages(response.hits);
+        if (gallery.children.length < totalHits) {
+          loadMoreButton.style.display = 'block';
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching images:', error);
+    } finally {
+      isFetching = false;
+    }
+  });
+} else {
+  console.error('Search form or input not found in DOM');
 }
 
-export function hideLoadMoreButton() {
-  loadMoreButton.style.display = 'none';
+loadMoreButton.addEventListener('click', async (event) => {
+  if (isFetching || gallery.children.length >= totalHits) return; // ✅ Фильтрация повторных кликов
+  event.preventDefault();
+
+  isFetching = true;
+  currentPage += 1;
+  showLoader();
+
+  try {
+    const response = await fetchImages(searchQuery, currentPage, perPage);
+    if (response && response.hits.length > 0) {
+      await renderImages(response.hits, true);
+    } else {
+      loadMoreButton.style.display = 'none';
+    }
+  } catch (error) {
+    console.error('Error loading more images:', error);
+  } finally {
+    hideLoader();
+    isFetching = false;
+  }
+});
+
+function showLoader() {
+  loadingOverlay.style.display = 'block';
 }
 
-export function showEndMessage() {
-  endMessage.style.display = 'block';
-}
-
-export function hideEndMessage() {
-  endMessage.style.display = 'none';
+function hideLoader() {
+  loadingOverlay.style.display = 'none';
 }
 
 
