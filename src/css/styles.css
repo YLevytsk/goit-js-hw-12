@@ -130,7 +130,7 @@
   background-color: #3b63c7;
 }
 
-.loading-overlay {
+loading-overlay {
   display: none; 
   display: flex; 
   position: fixed;
