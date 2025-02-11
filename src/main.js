@@ -1,5 +1,5 @@
 import { fetchImages } from './js/pixabay-api.js';
-import { renderImages, clearGallery, showLoadMoreButton, hideLoadMoreButton, showEndMessage, hideEndMessage } from './js/render-functions.js';
+import { renderImages } from './js/render-functions.js';
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
@@ -12,15 +12,15 @@ let currentPage = 1;
 const perPage = 40;
 let totalHits = 0;
 
-// **🔹 Скрываем кнопку и сообщение при загрузке страницы**
-hideLoadMoreButton();
-hideEndMessage();
+// Скрываем кнопку при загрузке страницы
+loadMoreButton.style.display = 'none';
+gallery.innerHTML = '';
 
-// **🔹 Обработчик отправки формы**
+// 🔹 Обработчик отправки формы
 form.addEventListener('submit', async event => {
   event.preventDefault();
-  searchQuery = event.target.elements.searchQuery.value.trim();
 
+  searchQuery = event.target.elements.searchQuery.value.trim();
   if (!searchQuery) {
     iziToast.warning({
       title: 'Warning',
@@ -30,15 +30,12 @@ form.addEventListener('submit', async event => {
     return;
   }
 
-  // **Очистка галереи перед новым запросом**
-  clearGallery();
-  hideLoadMoreButton();
-  hideEndMessage();
   currentPage = 1;
+  gallery.innerHTML = ''; // Очищаем галерею перед новым запросом
+  loadMoreButton.style.display = 'none';
 
   try {
     const response = await fetchImages(searchQuery, currentPage, perPage);
-
     if (!response || !response.hits || response.hits.length === 0) {
       iziToast.info({
         title: 'Info',
@@ -50,20 +47,18 @@ form.addEventListener('submit', async event => {
 
     totalHits = Math.min(response.totalHits, 500);
     renderImages(response.hits);
-
     if (totalHits > perPage) {
-      showLoadMoreButton();
+      loadMoreButton.style.display = 'block';
     }
   } catch (error) {
     console.error('Error fetching search images:', error);
   }
 });
 
-// **🔹 Обработчик клика на кнопку "Load More"**
+// 🔹 Обработчик клика на кнопку "Load More"
 loadMoreButton.addEventListener('click', async () => {
   if (gallery.children.length >= totalHits) {
-    hideLoadMoreButton();
-    showEndMessage();
+    loadMoreButton.style.display = 'none';
     return;
   }
 
@@ -76,8 +71,7 @@ loadMoreButton.addEventListener('click', async () => {
     }
 
     if (gallery.children.length >= totalHits) {
-      hideLoadMoreButton();
-      showEndMessage();
+      loadMoreButton.style.display = 'none';
     }
   } catch (error) {
     console.error('Error loading more images:', error);
