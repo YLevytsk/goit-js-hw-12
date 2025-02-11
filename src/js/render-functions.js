@@ -6,27 +6,24 @@ const lightbox = new SimpleLightbox('.gallery a', {
   captionsData: 'alt',
   captionDelay: 250,
 });
+const loadMoreButton = document.querySelector('.load-more');
 const endMessage = document.createElement('p');
 endMessage.classList.add('end-message');
 endMessage.textContent = "We're sorry, but you've reached the end of search results.";
 endMessage.style.display = 'none';
 gallery.after(endMessage);
 
-// Функция для очистки галереи перед новым поиском
+// **🔹 Очистка галереи перед новым запросом**
 export function clearGallery() {
-  if (gallery) {
-    gallery.innerHTML = '';
-  }
+  gallery.innerHTML = '';
 }
 
-// Функция для рендеринга изображений
+// **🔹 Функция рендера изображений**
 export function renderImages(images, append = false) {
-  if (!Array.isArray(images) || images.length === 0) {
-    return;
-  }
+  if (!Array.isArray(images) || images.length === 0) return;
 
   if (!append) {
-    clearGallery(); // Очистка галереи перед новым запросом
+    clearGallery();
   }
 
   const markup = images.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => `
@@ -46,18 +43,21 @@ export function renderImages(images, append = false) {
   lightbox.refresh();
 }
 
-// Функция для отображения сообщения о конце коллекции
-export function showEndMessage() {
-  if (endMessage) {
-    endMessage.style.display = 'block';
-  }
+// **🔹 Функции для управления UI**
+export function showLoadMoreButton() {
+  loadMoreButton.style.display = 'block';
 }
 
-// Функция для скрытия сообщения о конце коллекции
+export function hideLoadMoreButton() {
+  loadMoreButton.style.display = 'none';
+}
+
+export function showEndMessage() {
+  endMessage.style.display = 'block';
+}
+
 export function hideEndMessage() {
-  if (endMessage) {
-    endMessage.style.display = 'none';
-  }
+  endMessage.style.display = 'none';
 }
 
 
