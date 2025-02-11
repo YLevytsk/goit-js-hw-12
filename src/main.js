@@ -6,53 +6,49 @@ import 'izitoast/dist/css/iziToast.min.css';
 const gallery = document.querySelector('.gallery');
 const form = document.querySelector('.search-form');
 const loadMoreButton = document.querySelector('.load-more');
+const endMessage = document.querySelector('.end-message');
 
 let searchQuery = '';
 let currentPage = 1;
 const perPage = 40;
 let totalHits = 0;
 
-// **🔹 Обработчик отправки формы (поиск изображений)**
+// **❌ УБРАН ЛОАДЕР ПЕРЕД SimpleLightbox**
+
+// **🔹 Скрываем кнопку и сообщение при загрузке страницы**
+hideLoadMoreButton();
+hideEndMessage();
+
+// **🔹 Обработчик отправки формы**
 form.addEventListener('submit', async event => {
   event.preventDefault();
+  
   searchQuery = event.target.elements.searchQuery.value.trim();
-
   if (!searchQuery) {
-    iziToast.warning({
-      title: 'Warning',
-      message: 'Please enter a search term!',
-      position: 'topRight',
-    });
+    iziToast.warning({ title: 'Warning', message: 'Please enter a search term!', position: 'topRight' });
     return;
   }
 
   currentPage = 1;
-  clearGallery(); // Очищаем галерею перед новым запросом
-  hideLoadMoreButton(); // Скрываем кнопку "Load More"
-  hideEndMessage(); // Скрываем сообщение о конце коллекции
+  clearGallery();
+  hideLoadMoreButton();
+  hideEndMessage();
 
   try {
     const response = await fetchImages(searchQuery, currentPage, perPage);
-
-    if (!response || !response.hits || response.hits.length === 0) {
-      iziToast.info({
-        title: 'Info',
-        message: 'No images found for your query.',
-        position: 'topRight',
-      });
+    if (!response || !response.hits.length) {
+      iziToast.info({ title: 'Info', message: 'No images found for your query.', position: 'topRight' });
       return;
     }
 
     totalHits = Math.min(response.totalHits, 500);
-    console.log(`Fetched ${response.hits.length} images for query: ${searchQuery}`);
-    
-    renderImages(response.hits); // **Лоадер запускается в SimpleLightbox внутри renderImages**
+    renderImages(response.hits);
 
     if (totalHits > perPage) {
       showLoadMoreButton();
     }
   } catch (error) {
-    console.error('Error fetching search images:', error);
+    console.error('Error fetching images:', error);
   }
 });
 
@@ -68,9 +64,8 @@ loadMoreButton.addEventListener('click', async () => {
 
   try {
     const response = await fetchImages(searchQuery, currentPage, perPage);
-
     if (response && response.hits.length > 0) {
-      renderImages(response.hits, true); // **Лоадер запускается в SimpleLightbox внутри renderImages**
+      renderImages(response.hits, true);
     }
 
     if (gallery.children.length >= totalHits) {
