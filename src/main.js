@@ -1,5 +1,5 @@
 import { fetchImages } from './js/pixabay-api.js';
-import { renderImages } from './js/render-functions.js';
+import { renderImages, clearGallery, showLoadMoreButton, hideLoadMoreButton, showEndMessage, hideEndMessage } from './js/render-functions.js';
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
@@ -12,15 +12,11 @@ let currentPage = 1;
 const perPage = 40;
 let totalHits = 0;
 
-// Скрываем кнопку при загрузке страницы
-loadMoreButton.style.display = 'none';
-gallery.innerHTML = '';
-
-// 🔹 Обработчик отправки формы
+// **🔹 Обработчик отправки формы (поиск изображений)**
 form.addEventListener('submit', async event => {
   event.preventDefault();
-
   searchQuery = event.target.elements.searchQuery.value.trim();
+
   if (!searchQuery) {
     iziToast.warning({
       title: 'Warning',
@@ -31,11 +27,13 @@ form.addEventListener('submit', async event => {
   }
 
   currentPage = 1;
-  gallery.innerHTML = ''; // Очищаем галерею перед новым запросом
-  loadMoreButton.style.display = 'none';
+  clearGallery(); // Очищаем галерею перед новым запросом
+  hideLoadMoreButton(); // Скрываем кнопку "Load More"
+  hideEndMessage(); // Скрываем сообщение о конце коллекции
 
   try {
     const response = await fetchImages(searchQuery, currentPage, perPage);
+
     if (!response || !response.hits || response.hits.length === 0) {
       iziToast.info({
         title: 'Info',
@@ -46,19 +44,23 @@ form.addEventListener('submit', async event => {
     }
 
     totalHits = Math.min(response.totalHits, 500);
-    renderImages(response.hits);
+    console.log(`Fetched ${response.hits.length} images for query: ${searchQuery}`);
+    
+    renderImages(response.hits); // **Лоадер запускается в SimpleLightbox внутри renderImages**
+
     if (totalHits > perPage) {
-      loadMoreButton.style.display = 'block';
+      showLoadMoreButton();
     }
   } catch (error) {
     console.error('Error fetching search images:', error);
   }
 });
 
-// 🔹 Обработчик клика на кнопку "Load More"
+// **🔹 Обработчик клика на кнопку "Load More"**
 loadMoreButton.addEventListener('click', async () => {
   if (gallery.children.length >= totalHits) {
-    loadMoreButton.style.display = 'none';
+    hideLoadMoreButton();
+    showEndMessage();
     return;
   }
 
@@ -66,17 +68,20 @@ loadMoreButton.addEventListener('click', async () => {
 
   try {
     const response = await fetchImages(searchQuery, currentPage, perPage);
+
     if (response && response.hits.length > 0) {
-      renderImages(response.hits, true);
+      renderImages(response.hits, true); // **Лоадер запускается в SimpleLightbox внутри renderImages**
     }
 
     if (gallery.children.length >= totalHits) {
-      loadMoreButton.style.display = 'none';
+      hideLoadMoreButton();
+      showEndMessage();
     }
   } catch (error) {
     console.error('Error loading more images:', error);
   }
 });
+
 
 
 
