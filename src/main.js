@@ -16,8 +16,9 @@ let searchQuery = '';
 let currentPage = 1;
 const perPage = 40;
 let totalHits = 0;
+let isFetching = false; // Предотвращаем дублирование запросов
 
-// Скрываем кнопку и сообщение при загрузке страницы
+// Скрываем кнопку и сообщение при старте страницы
 loadMoreButton.style.display = 'none';
 endMessage.style.display = 'none';
 
@@ -31,8 +32,11 @@ function hideLoader() {
   document.getElementById('loading-overlay').style.display = 'none';
 }
 
-// 🔹 Функция для загрузки случайных фото при старте страницы
+// 🔹 Загружаем случайные изображения при старте страницы (1 раз)
 async function loadRandomImages() {
+  if (isFetching) return;
+  isFetching = true;
+
   showLoader();
   try {
     const categories = ['nature', 'technology', 'art', 'food', 'travel'];
@@ -51,15 +55,17 @@ async function loadRandomImages() {
     console.error('Error fetching random images:', error);
   } finally {
     hideLoader();
+    isFetching = false;
   }
 }
 
-// 🔹 Загружаем случайные фото при загрузке страницы
-loadRandomImages();
+// 🔹 Загружаем случайные фото при загрузке страницы (только 1 раз)
+document.addEventListener("DOMContentLoaded", loadRandomImages);
 
-// 🔹 Обработчик отправки формы
+// 🔹 Обработчик отправки формы (поиск изображений)
 form.addEventListener('submit', async event => {
   event.preventDefault();
+  if (isFetching) return; // Предотвращаем повторные запросы
 
   searchQuery = event.target.elements.searchQuery.value.trim();
 
@@ -72,6 +78,7 @@ form.addEventListener('submit', async event => {
     return;
   }
 
+  isFetching = true;
   showLoader();
   currentPage = 1;
   gallery.innerHTML = ''; // Очищаем галерею перед новым запросом
@@ -101,22 +108,20 @@ form.addEventListener('submit', async event => {
     console.error('Error fetching search images:', error);
   } finally {
     hideLoader();
+    isFetching = false;
   }
 });
 
-// 🔹 Обработчик клика на кнопку "Load More"
+// 🔹 Обработчик клика "Load More"
 loadMoreButton.addEventListener('click', async () => {
-  if (gallery.children.length >= totalHits) {
-    loadMoreButton.style.display = 'none';
-    endMessage.style.display = 'block';
-    return;
-  }
-
-  currentPage += 1;
+  if (isFetching || gallery.children.length >= totalHits) return;
+  isFetching = true;
   showLoader();
 
   try {
+    currentPage += 1;
     const response = await fetchImages(searchQuery, currentPage, perPage);
+
     if (response && response.hits.length > 0) {
       renderImages(response.hits, true);
     }
@@ -129,6 +134,7 @@ loadMoreButton.addEventListener('click', async () => {
     console.error('Error loading more images:', error);
   } finally {
     hideLoader();
+    isFetching = false;
   }
 });
 
