@@ -11,11 +11,6 @@ const lightbox = new SimpleLightbox('.gallery a', {
 });
 const loadMoreButton = document.querySelector('.load-more');
 const loadingOverlay = document.getElementById('loading-overlay');
-const endMessage = document.createElement('p');
-endMessage.classList.add('end-message');
-endMessage.textContent = "We're sorry, but you've reached the end of search results.";
-endMessage.style.display = 'none';
-gallery.after(endMessage);
 
 let searchQuery = '';
 let currentPage = 1;
@@ -23,10 +18,9 @@ const perPage = 40;
 let totalHits = 0;
 let loadedImageIds = new Set();
 
-// Скрываем кнопку и сообщение при загрузке страницы
+// Скрываем кнопку при загрузке страницы
 loadMoreButton.style.display = 'none';
-endMessage.style.display = 'none';
-gallery.innerHTML = ''; loadMoreButton.style.display = 'none'; endMessage.style.display = 'none'; endMessage.style.display = 'none'; loadMoreButton.style.display = 'none'; // Очистка галереи при загрузке страницы
+gallery.innerHTML = ''; 
 
 export async function renderImages(images, append = false) {
   if (!Array.isArray(images) || images.length === 0) {
@@ -34,7 +28,8 @@ export async function renderImages(images, append = false) {
   }
 
   if (!append) {
-    gallery.innerHTML = ''; loadMoreButton.style.display = 'none'; endMessage.style.display = 'none'; endMessage.style.display = 'none'; loadMoreButton.style.display = 'none';
+    gallery.innerHTML = ''; 
+    loadMoreButton.style.display = 'none';
     loadedImageIds.clear();
   }
 
@@ -65,10 +60,8 @@ export async function renderImages(images, append = false) {
 
   if (gallery.children.length >= totalHits) {
     loadMoreButton.style.display = 'none';
-    if (gallery.children.length > 0) { if (gallery.children.length > 0 && gallery.children.length >= totalHits) { endMessage.style.display = 'block'; } }
   } else {
     loadMoreButton.style.display = 'block';
-    endMessage.style.display = 'none';
   }
 }
 
@@ -78,7 +71,6 @@ const searchInput = document.querySelector('input[name="searchQuery"]');
 if (searchForm && searchInput) {
   searchForm.addEventListener('submit', async event => {
     if (event.defaultPrevented) return; // Предотвращаем дублирование запросов
-    event.preventDefault();
     event.preventDefault();
     searchQuery = searchInput.value?.trim();
 
@@ -90,8 +82,7 @@ if (searchForm && searchInput) {
     currentPage = 1;
     loadedImageIds.clear();
     loadMoreButton.style.display = 'none';
-    endMessage.style.display = 'none';
-    gallery.innerHTML = ''; loadMoreButton.style.display = 'none'; endMessage.style.display = 'none'; endMessage.style.display = 'none'; loadMoreButton.style.display = 'none'; // Очистка перед новым запросом
+    gallery.innerHTML = ''; 
 
     const response = await fetchImages(searchQuery, currentPage, perPage);
     if (response && response.hits.length > 0) {
@@ -111,7 +102,6 @@ loadMoreButton.addEventListener('click', async () => {
     event.preventDefault();
   if (gallery.children.length >= totalHits) {
     loadMoreButton.style.display = 'none';
-    if (gallery.children.length > 0) { if (gallery.children.length > 0 && gallery.children.length >= totalHits) { endMessage.style.display = 'block'; } }
     return;
   }
 
@@ -123,7 +113,6 @@ loadMoreButton.addEventListener('click', async () => {
     await renderImages(response.hits, true);
   } else {
     loadMoreButton.style.display = 'none';
-    if (gallery.children.length > 0) { if (gallery.children.length > 0 && gallery.children.length >= totalHits) { endMessage.style.display = 'block'; } }
   }
   hideLoader();
 });
