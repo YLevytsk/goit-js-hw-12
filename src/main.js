@@ -1,12 +1,5 @@
 import { fetchImages } from './js/pixabay-api.js';
-import {
-  renderImages,
-  clearGallery,
-  showLoaderDuringRequest,
-  hideLoaderAfterRequest,
-  showLoadMoreButton,
-  hideLoadMoreButton
-} from './js/render-functions.js';
+import { renderImages, clearGallery, showLoadMoreButton, hideLoadMoreButton, showEndMessage, hideEndMessage } from './js/render-functions.js';
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
@@ -18,10 +11,23 @@ let currentPage = 1;
 const perPage = 40;
 let totalHits = 0;
 
-// 🔹 **Скрываем кнопку Load More при загрузке страницы**
+// 🔹 Скрываем кнопку и сообщение при загрузке страницы
 hideLoadMoreButton();
+hideEndMessage();
 
-// 🔹 **Обработчик отправки формы**
+// 🔹 Функция плавной прокрутки
+function smoothScroll() {
+  const firstGalleryItem = document.querySelector('.gallery-item');
+  if (firstGalleryItem) {
+    const cardHeight = firstGalleryItem.getBoundingClientRect().height;
+    window.scrollBy({
+      top: cardHeight * 2,
+      behavior: 'smooth',
+    });
+  }
+}
+
+// 🔹 Обработчик отправки формы
 form.addEventListener('submit', async event => {
   event.preventDefault();
   
@@ -34,57 +40,59 @@ form.addEventListener('submit', async event => {
   currentPage = 1;
   clearGallery();
   hideLoadMoreButton();
-  
-  showLoaderDuringRequest(); // **Лоадер во время запроса**
+  hideEndMessage();
 
   try {
     const response = await fetchImages(searchQuery, currentPage, perPage);
-
-    if (!response || !response.hits.length) {
+    
+    if (!response || response.totalHits === 0) {
       iziToast.info({ title: 'Info', message: 'No images found for your query.', position: 'topRight' });
-      hideLoaderAfterRequest();
       return;
     }
 
     totalHits = Math.min(response.totalHits, 500);
     renderImages(response.hits);
 
+    // ✅ Если изображений больше 0, но меньше 40 – кнопка всё равно появляется
     if (totalHits > perPage) {
       showLoadMoreButton();
     }
+
+    // ✅ Если изображений 0 – показываем сообщение
+    if (totalHits === 0) {
+      showEndMessage();
+    }
   } catch (error) {
     console.error('Error fetching images:', error);
-  } finally {
-    hideLoaderAfterRequest(); // **Лоадер скрывается только после завершения запроса**
   }
 });
 
-// 🔹 **Обработчик кнопки "Load More"**
+// 🔹 Обработчик клика на кнопку "Load More"
 loadMoreButton.addEventListener('click', async () => {
   if (document.querySelector('.gallery').children.length >= totalHits) {
     hideLoadMoreButton();
+    showEndMessage();
     return;
   }
 
   currentPage += 1;
-  showLoaderDuringRequest(); // **Лоадер во время запроса**
-
+  
   try {
     const response = await fetchImages(searchQuery, currentPage, perPage);
-    
     if (response && response.hits.length > 0) {
       renderImages(response.hits, true);
+      smoothScroll(); // ✅ Добавлена плавная прокрутка
     }
 
     if (document.querySelector('.gallery').children.length >= totalHits) {
       hideLoadMoreButton();
+      showEndMessage();
     }
   } catch (error) {
     console.error('Error loading more images:', error);
-  } finally {
-    hideLoaderAfterRequest(); // **Лоадер скрывается только после завершения запроса**
   }
 });
+
 
 
 
