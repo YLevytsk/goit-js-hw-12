@@ -1,8 +1,8 @@
 const loadingOverlay = document.getElementById('loading-overlay');
 const loadMoreButton = document.querySelector('.load-more');
 
-// 🔹 **Показать лоадер**
-export function showLoader() {
+// 🔹 **Показать лоадер во время запроса**
+export function showLoaderDuringRequest() {
   if (loadingOverlay) {
     loadingOverlay.style.display = 'flex';
   }
@@ -11,8 +11,8 @@ export function showLoader() {
   }
 }
 
-// 🔹 **Скрыть лоадер**
-export function hideLoader() {
+// 🔹 **Скрыть лоадер после завершения запроса**
+export function hideLoaderAfterRequest() {
   if (loadingOverlay) {
     loadingOverlay.style.display = 'none';
   }
