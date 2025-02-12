@@ -1,14 +1,5 @@
 import { fetchImages } from './js/pixabay-api.js';
-import {
-  renderImages,
-  clearGallery,
-  showLoadMoreButton,
-  hideLoadMoreButton,
-  showEndMessage,
-  hideEndMessage,
-  showLoader,
-  hideLoader
-} from './js/render-functions.js';
+import { renderImages, clearGallery, showLoaderDuringRequest, hideLoaderAfterRequest, showLoadMoreButton, hideLoadMoreButton } from './js/render-functions.js';
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
@@ -20,14 +11,13 @@ let currentPage = 1;
 const perPage = 40;
 let totalHits = 0;
 
-// **🔹 Скрываем кнопку и сообщение при загрузке страницы**
+// 🔹 **Скрываем кнопку Load More при загрузке страницы**
 hideLoadMoreButton();
-hideEndMessage();
 
-// **🔹 Обработчик отправки формы**
+// 🔹 **Обработчик отправки формы**
 form.addEventListener('submit', async event => {
   event.preventDefault();
-
+  
   searchQuery = event.target.elements.searchQuery.value.trim();
   if (!searchQuery) {
     iziToast.warning({ title: 'Warning', message: 'Please enter a search term!', position: 'topRight' });
@@ -37,15 +27,15 @@ form.addEventListener('submit', async event => {
   currentPage = 1;
   clearGallery();
   hideLoadMoreButton();
-  hideEndMessage();
-  showLoader(); // **Показываем лоадер при начале запроса**
+  
+  showLoaderDuringRequest(); // **Лоадер во время запроса**
 
   try {
     const response = await fetchImages(searchQuery, currentPage, perPage);
-    hideLoader(); // **Скрываем лоадер после получения данных**
 
     if (!response || !response.hits.length) {
       iziToast.info({ title: 'Info', message: 'No images found for your query.', position: 'topRight' });
+      hideLoaderAfterRequest();
       return;
     }
 
@@ -56,37 +46,36 @@ form.addEventListener('submit', async event => {
       showLoadMoreButton();
     }
   } catch (error) {
-    hideLoader();
     console.error('Error fetching images:', error);
+  } finally {
+    hideLoaderAfterRequest(); // **Лоадер скрывается только после завершения запроса**
   }
 });
 
-// **🔹 Обработчик клика на кнопку "Load More"**
+// 🔹 **Обработчик кнопки "Load More"**
 loadMoreButton.addEventListener('click', async () => {
-  if (document.querySelectorAll('.gallery-item').length >= totalHits) {
+  if (document.querySelector('.gallery').children.length >= totalHits) {
     hideLoadMoreButton();
-    showEndMessage();
     return;
   }
 
   currentPage += 1;
-  showLoader(); // **Показываем лоадер при загрузке новых изображений**
+  showLoaderDuringRequest(); // **Лоадер во время запроса**
 
   try {
     const response = await fetchImages(searchQuery, currentPage, perPage);
-    hideLoader(); // **Скрываем лоадер после ответа**
-
+    
     if (response && response.hits.length > 0) {
       renderImages(response.hits, true);
     }
 
-    if (document.querySelectorAll('.gallery-item').length >= totalHits) {
+    if (document.querySelector('.gallery').children.length >= totalHits) {
       hideLoadMoreButton();
-      showEndMessage();
     }
   } catch (error) {
-    hideLoader();
     console.error('Error loading more images:', error);
+  } finally {
+    hideLoaderAfterRequest(); // **Лоадер скрывается только после завершения запроса**
   }
 });
 
