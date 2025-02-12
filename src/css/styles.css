@@ -130,7 +130,7 @@
   background-color: #3b63c7;
 }
 
-loading-overlay {
+.loading-overlay {
   display: none; 
   display: flex; 
   position: fixed;
@@ -144,7 +144,7 @@ loading-overlay {
   z-index: 9999;
 }
 
-loader {
+.loader {
   width: 50px;
   height: 50px;
   border-radius: 50%;
@@ -153,7 +153,7 @@ loader {
   animation: spin 1s linear infinite;
 }
 
-keyframes spin {
+@keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }

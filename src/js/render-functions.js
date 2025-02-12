@@ -7,18 +7,9 @@ const lightbox = new SimpleLightbox('.gallery a', {
   captionDelay: 250,
 });
 const loadMoreButton = document.querySelector('.load-more');
+const endMessage = document.querySelector('.end-message');
+const loadingOverlay = document.getElementById('loading-overlay'); // **Лоадер**
 
-// **🔹 Создаем и добавляем сообщение о конце коллекции только при необходимости**
-let endMessage = document.querySelector('.end-message');
-if (!endMessage) {
-  endMessage = document.createElement('p');
-  endMessage.classList.add('end-message');
-  endMessage.textContent = "We're sorry, but you've reached the end of search results.";
-  endMessage.style.display = 'none';
-  gallery.after(endMessage);
-}
-
-// **🔹 Очистка галереи перед новым запросом**
 export function clearGallery() {
   gallery.innerHTML = '';
 }
@@ -48,7 +39,7 @@ export function renderImages(images, append = false) {
   lightbox.refresh();
 }
 
-// **🔹 Функции для управления UI**
+// **🔹 Функции для UI (кнопка "Load More" и сообщение)**
 export function showLoadMoreButton() {
   loadMoreButton.style.display = 'block';
 }
@@ -58,14 +49,23 @@ export function hideLoadMoreButton() {
 }
 
 export function showEndMessage() {
-  if (gallery.children.length > 0) {
-    endMessage.style.display = 'block';
-  }
+  endMessage.style.display = 'block';
 }
 
 export function hideEndMessage() {
   endMessage.style.display = 'none';
 }
+
+// **🔹 Функции для управления лоадером**
+export function showLoader() {
+  loadingOverlay.style.display = 'flex';
+}
+
+export function hideLoader() {
+  loadingOverlay.style.display = 'none';
+}
+
+
 
 
 
