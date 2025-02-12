@@ -1,21 +1,34 @@
-import SimpleLightbox from 'simplelightbox';
-import 'simplelightbox/dist/simple-lightbox.min.css';
-
-const gallery = document.querySelector('.gallery');
-const lightbox = new SimpleLightbox('.gallery a', {
-  captionsData: 'alt',
-  captionDelay: 250,
-});
+const loadingOverlay = document.getElementById('loading-overlay');
 const loadMoreButton = document.querySelector('.load-more');
-const endMessage = document.querySelector('.end-message');
-const loadingOverlay = document.getElementById('loading-overlay'); // **Лоадер**
 
-export function clearGallery() {
-  gallery.innerHTML = '';
+// 🔹 **Показать лоадер**
+export function showLoader() {
+  if (loadingOverlay) {
+    loadingOverlay.style.display = 'flex';
+  }
+  if (loadMoreButton) {
+    loadMoreButton.style.display = 'none';
+  }
 }
 
-// **🔹 Функция рендера изображений**
+// 🔹 **Скрыть лоадер**
+export function hideLoader() {
+  if (loadingOverlay) {
+    loadingOverlay.style.display = 'none';
+  }
+  if (loadMoreButton) {
+    loadMoreButton.style.display = 'block';
+  }
+}
+
+// 🔹 **Очистка галереи**
+export function clearGallery() {
+  document.querySelector('.gallery').innerHTML = '';
+}
+
+// 🔹 **Рендер изображений**
 export function renderImages(images, append = false) {
+  const gallery = document.querySelector('.gallery');
   if (!Array.isArray(images) || images.length === 0) return;
 
   if (!append) {
@@ -36,33 +49,19 @@ export function renderImages(images, append = false) {
     </div>`).join('');
 
   gallery.insertAdjacentHTML('beforeend', markup);
-  lightbox.refresh();
 }
 
-// **🔹 Функции для UI (кнопка "Load More" и сообщение)**
+// 🔹 **Показать/скрыть кнопку Load More**
 export function showLoadMoreButton() {
-  loadMoreButton.style.display = 'block';
+  if (loadMoreButton) {
+    loadMoreButton.style.display = 'block';
+  }
 }
 
 export function hideLoadMoreButton() {
-  loadMoreButton.style.display = 'none';
-}
-
-export function showEndMessage() {
-  endMessage.style.display = 'block';
-}
-
-export function hideEndMessage() {
-  endMessage.style.display = 'none';
-}
-
-// **🔹 Функции для управления лоадером**
-export function showLoader() {
-  loadingOverlay.style.display = 'flex';
-}
-
-export function hideLoader() {
-  loadingOverlay.style.display = 'none';
+  if (loadMoreButton) {
+    loadMoreButton.style.display = 'none';
+  }
 }
 
 
