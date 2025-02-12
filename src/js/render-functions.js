@@ -1,3 +1,12 @@
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
+
+const gallery = document.querySelector('.gallery');
+const lightbox = new SimpleLightbox('.gallery a', {
+  captionsData: 'alt',
+  captionDelay: 250,
+});
+
 const loadingOverlay = document.getElementById('loading-overlay');
 const loadMoreButton = document.querySelector('.load-more');
 
@@ -11,7 +20,7 @@ export function showLoaderDuringRequest() {
   }
 }
 
-// 🔹 **Скрыть лоадер после завершения запроса**
+// 🔹 **Скрыть лоадер после запроса**
 export function hideLoaderAfterRequest() {
   if (loadingOverlay) {
     loadingOverlay.style.display = 'none';
@@ -23,19 +32,20 @@ export function hideLoaderAfterRequest() {
 
 // 🔹 **Очистка галереи**
 export function clearGallery() {
-  document.querySelector('.gallery').innerHTML = '';
+  gallery.innerHTML = '';
 }
 
 // 🔹 **Рендер изображений**
 export function renderImages(images, append = false) {
-  const gallery = document.querySelector('.gallery');
   if (!Array.isArray(images) || images.length === 0) return;
 
   if (!append) {
     clearGallery();
   }
 
-  const markup = images.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => `
+  const markup = images
+    .map(
+      ({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => `
     <div class="gallery-item">
       <a href="${largeImageURL}">
         <img src="${webformatURL}" alt="${tags}" loading="lazy" />
@@ -46,9 +56,14 @@ export function renderImages(images, append = false) {
         <div class="item"><span class="label">Comments</span><span class="count">${comments}</span></div>
         <div class="item"><span class="label">Downloads</span><span class="count">${downloads}</span></div>
       </div>
-    </div>`).join('');
+    </div>`
+    )
+    .join('');
 
   gallery.insertAdjacentHTML('beforeend', markup);
+  
+  // ✅ **Обновление SimpleLightbox после добавления новых изображений**
+  lightbox.refresh();
 }
 
 // 🔹 **Показать/скрыть кнопку Load More**

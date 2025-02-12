@@ -1,5 +1,12 @@
 import { fetchImages } from './js/pixabay-api.js';
-import { renderImages, clearGallery, showLoaderDuringRequest, hideLoaderAfterRequest, showLoadMoreButton, hideLoadMoreButton } from './js/render-functions.js';
+import {
+  renderImages,
+  clearGallery,
+  showLoaderDuringRequest,
+  hideLoaderAfterRequest,
+  showLoadMoreButton,
+  hideLoadMoreButton
+} from './js/render-functions.js';
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
