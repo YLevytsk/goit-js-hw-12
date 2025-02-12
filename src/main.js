@@ -53,12 +53,10 @@ form.addEventListener('submit', async event => {
     totalHits = Math.min(response.totalHits, 500);
     renderImages(response.hits);
 
-    // ✅ Если изображений больше 0, но меньше 40 – кнопка всё равно появляется
     if (totalHits > perPage) {
       showLoadMoreButton();
     }
 
-    // ✅ Если изображений 0 – показываем сообщение
     if (totalHits === 0) {
       showEndMessage();
     }
@@ -81,7 +79,7 @@ loadMoreButton.addEventListener('click', async () => {
     const response = await fetchImages(searchQuery, currentPage, perPage);
     if (response && response.hits.length > 0) {
       renderImages(response.hits, true);
-      smoothScroll(); // ✅ Добавлена плавная прокрутка
+      smoothScroll();
     }
 
     if (document.querySelector('.gallery').children.length >= totalHits) {
@@ -92,6 +90,7 @@ loadMoreButton.addEventListener('click', async () => {
     console.error('Error loading more images:', error);
   }
 });
+
 
 
 

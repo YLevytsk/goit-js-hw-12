@@ -6,36 +6,19 @@ const lightbox = new SimpleLightbox('.gallery a', {
   captionsData: 'alt',
   captionDelay: 250,
 });
-
-const loadingOverlay = document.getElementById('loading-overlay');
 const loadMoreButton = document.querySelector('.load-more');
+const endMessage = document.createElement('p');
+endMessage.classList.add('end-message');
+endMessage.textContent = "We're sorry, but you've reached the end of search results.";
+endMessage.style.display = 'none';
+gallery.after(endMessage);
 
-// 🔹 **Показать лоадер во время запроса**
-export function showLoaderDuringRequest() {
-  if (loadingOverlay) {
-    loadingOverlay.style.display = 'flex';
-  }
-  if (loadMoreButton) {
-    loadMoreButton.style.display = 'none';
-  }
-}
-
-// 🔹 **Скрыть лоадер после запроса**
-export function hideLoaderAfterRequest() {
-  if (loadingOverlay) {
-    loadingOverlay.style.display = 'none';
-  }
-  if (loadMoreButton) {
-    loadMoreButton.style.display = 'block';
-  }
-}
-
-// 🔹 **Очистка галереи**
+// 🔹 Очистка галереи перед новым запросом
 export function clearGallery() {
   gallery.innerHTML = '';
 }
 
-// 🔹 **Рендер изображений**
+// 🔹 Функция рендера изображений
 export function renderImages(images, append = false) {
   if (!Array.isArray(images) || images.length === 0) return;
 
@@ -43,9 +26,7 @@ export function renderImages(images, append = false) {
     clearGallery();
   }
 
-  const markup = images
-    .map(
-      ({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => `
+  const markup = images.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => `
     <div class="gallery-item">
       <a href="${largeImageURL}">
         <img src="${webformatURL}" alt="${tags}" loading="lazy" />
@@ -56,27 +37,27 @@ export function renderImages(images, append = false) {
         <div class="item"><span class="label">Comments</span><span class="count">${comments}</span></div>
         <div class="item"><span class="label">Downloads</span><span class="count">${downloads}</span></div>
       </div>
-    </div>`
-    )
-    .join('');
+    </div>`).join('');
 
   gallery.insertAdjacentHTML('beforeend', markup);
-  
-  // ✅ **Обновление SimpleLightbox после добавления новых изображений**
   lightbox.refresh();
 }
 
-// 🔹 **Показать/скрыть кнопку Load More**
+// 🔹 Функции для управления UI
 export function showLoadMoreButton() {
-  if (loadMoreButton) {
-    loadMoreButton.style.display = 'block';
-  }
+  loadMoreButton.style.display = 'block';
 }
 
 export function hideLoadMoreButton() {
-  if (loadMoreButton) {
-    loadMoreButton.style.display = 'none';
-  }
+  loadMoreButton.style.display = 'none';
+}
+
+export function showEndMessage() {
+  endMessage.style.display = 'block';
+}
+
+export function hideEndMessage() {
+  endMessage.style.display = 'none';
 }
 
 
