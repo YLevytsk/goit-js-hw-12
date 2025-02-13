@@ -7,11 +7,7 @@ const lightbox = new SimpleLightbox('.gallery a', {
   captionDelay: 250,
 });
 const loadMoreButton = document.querySelector('.load-more');
-const endMessage = document.createElement('p');
-endMessage.classList.add('end-message');
-endMessage.textContent = "We're sorry, but you've reached the end of search results.";
-endMessage.style.display = 'none';
-gallery.after(endMessage);
+const endMessage = document.querySelector('.end-message');
 
 // 🔹 Очистка галереи перед новым запросом
 export function clearGallery() {
@@ -43,7 +39,7 @@ export function renderImages(images, append = false) {
   lightbox.refresh();
 }
 
-// 🔹 Функции для управления UI
+// 🔹 Функции для управления UI (Убраны уведомления, теперь они только в `main.js`)
 export function showLoadMoreButton() {
   loadMoreButton.style.display = 'block';
 }
@@ -59,6 +55,7 @@ export function showEndMessage() {
 export function hideEndMessage() {
   endMessage.style.display = 'none';
 }
+
 
 
 

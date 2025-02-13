@@ -38,7 +38,7 @@ form.addEventListener('submit', async event => {
   try {
     const response = await fetchImages(searchQuery, currentPage, perPage);
 
-    // ❌ Если сервер вернул 0 результатов, показываем сообщение, а не загружаем пустую галерею
+    // ❌ Оставляем только ОДНО уведомление, если ничего не найдено
     if (!response || !response.hits || response.hits.length === 0) {
       iziToast.info({
         title: 'Info',
@@ -84,6 +84,7 @@ loadMoreButton.addEventListener('click', async () => {
     console.error('Error loading more images:', error);
   }
 });
+
 
 
 
