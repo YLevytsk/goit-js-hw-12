@@ -1,24 +1,19 @@
 import { fetchImages } from './js/pixabay-api.js';
-import {
-  renderImages,
-  clearGallery,
-  showLoadMoreButton,
-  hideLoadMoreButton,
-  showEndMessage,
-  hideEndMessage
-} from './js/render-functions.js';
+import { renderImages, clearGallery, showLoadMoreButton, hideLoadMoreButton, showEndMessage, hideEndMessage } from './js/render-functions.js';
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
+const gallery = document.querySelector('.gallery');
 const form = document.querySelector('.search-form');
 const loadMoreButton = document.querySelector('.load-more');
+const endMessage = document.querySelector('.end-message');
 
 let searchQuery = '';
 let currentPage = 1;
 const perPage = 40;
 let totalHits = 0;
 
-// **🔹 Скрываем кнопку и сообщение при загрузке страницы**
+// **🔹 Очищаем галерею и скрываем элементы при загрузке страницы**
 hideLoadMoreButton();
 hideEndMessage();
 
@@ -26,8 +21,8 @@ hideEndMessage();
 form.addEventListener('submit', async event => {
   event.preventDefault();
 
-  searchQuery = event.target.elements.searchQuery.value.trim();
-  
+  searchQuery = event.target.elements.searchQuery.value.trim().toLowerCase();
+
   if (!searchQuery) {
     iziToast.warning({
       title: 'Warning',
@@ -45,10 +40,11 @@ form.addEventListener('submit', async event => {
   try {
     const response = await fetchImages(searchQuery, currentPage, perPage);
 
+    // **❌ Проверка на пустой ответ от API**
     if (!response || !response.hits || response.hits.length === 0) {
       iziToast.info({
         title: 'Info',
-        message: 'No images found for your query. Please try another one.',
+        message: 'Sorry, there are no images matching your search query. Please try again!',
         position: 'topRight',
       });
       return;
@@ -62,12 +58,17 @@ form.addEventListener('submit', async event => {
     }
   } catch (error) {
     console.error('Error fetching images:', error);
+    iziToast.error({
+      title: 'Error',
+      message: 'Something went wrong. Please try again later.',
+      position: 'topRight',
+    });
   }
 });
 
-// **🔹 Обработчик клика на кнопку "Load More"**
+// **🔹 Обработчик кнопки "Load More"**
 loadMoreButton.addEventListener('click', async () => {
-  if (document.querySelector('.gallery').children.length >= totalHits) {
+  if (gallery.children.length >= totalHits) {
     hideLoadMoreButton();
     showEndMessage();
     return;
@@ -81,7 +82,7 @@ loadMoreButton.addEventListener('click', async () => {
       renderImages(response.hits, true);
     }
 
-    if (document.querySelector('.gallery').children.length >= totalHits) {
+    if (gallery.children.length >= totalHits) {
       hideLoadMoreButton();
       showEndMessage();
     }
@@ -89,6 +90,7 @@ loadMoreButton.addEventListener('click', async () => {
     console.error('Error loading more images:', error);
   }
 });
+
 
 
 

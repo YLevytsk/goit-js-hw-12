@@ -1,96 +1,60 @@
-import { fetchImages } from './js/pixabay-api.js';
-import { renderImages, clearGallery, showLoadMoreButton, hideLoadMoreButton, showEndMessage, hideEndMessage } from './js/render-functions.js';
-import iziToast from 'izitoast';
-import 'izitoast/dist/css/iziToast.min.css';
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const gallery = document.querySelector('.gallery');
-const form = document.querySelector('.search-form');
+const lightbox = new SimpleLightbox('.gallery a', {
+  captionsData: 'alt',
+  captionDelay: 250,
+});
 const loadMoreButton = document.querySelector('.load-more');
 const endMessage = document.querySelector('.end-message');
 
-let searchQuery = '';
-let currentPage = 1;
-const perPage = 40;
-let totalHits = 0;
+// 🔹 Очистка галереи перед новым запросом
+export function clearGallery() {
+  gallery.innerHTML = '';
+}
 
-// **🔹 Очищаем галерею и скрываем элементы при загрузке страницы**
-hideLoadMoreButton();
-hideEndMessage();
+// 🔹 Функция рендера изображений
+export function renderImages(images, append = false) {
+  if (!Array.isArray(images) || images.length === 0) return;
 
-// **🔹 Обработчик отправки формы**
-form.addEventListener('submit', async event => {
-  event.preventDefault();
-
-  searchQuery = event.target.elements.searchQuery.value.trim().toLowerCase();
-
-  if (!searchQuery) {
-    iziToast.warning({
-      title: 'Warning',
-      message: 'Please enter a search term!',
-      position: 'topRight',
-    });
-    return;
+  if (!append) {
+    clearGallery();
   }
 
-  currentPage = 1;
-  clearGallery();
-  hideLoadMoreButton();
-  hideEndMessage();
+  const markup = images.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => `
+    <div class="gallery-item">
+      <a href="${largeImageURL}">
+        <img src="${webformatURL}" alt="${tags}" loading="lazy" />
+      </a>
+      <div class="image-info">
+        <div class="item"><span class="label">Likes</span><span class="count">${likes}</span></div>
+        <div class="item"><span class="label">Views</span><span class="count">${views}</span></div>
+        <div class="item"><span class="label">Comments</span><span class="count">${comments}</span></div>
+        <div class="item"><span class="label">Downloads</span><span class="count">${downloads}</span></div>
+      </div>
+    </div>`).join('');
 
-  try {
-    const response = await fetchImages(searchQuery, currentPage, perPage);
+  gallery.insertAdjacentHTML('beforeend', markup);
+  lightbox.refresh();
+}
 
-    // **❌ Проверка на пустой ответ от API**
-    if (!response || !response.hits || response.hits.length === 0) {
-      iziToast.info({
-        title: 'Info',
-        message: 'Sorry, there are no images matching your search query. Please try again!',
-        position: 'topRight',
-      });
-      return;
-    }
+// 🔹 Функции для управления UI (Убраны уведомления, теперь они только в `main.js`)
+export function showLoadMoreButton() {
+  loadMoreButton.style.display = 'block';
+}
 
-    totalHits = Math.min(response.totalHits, 500);
-    renderImages(response.hits);
+export function hideLoadMoreButton() {
+  loadMoreButton.style.display = 'none';
+}
 
-    if (totalHits > perPage) {
-      showLoadMoreButton();
-    }
-  } catch (error) {
-    console.error('Error fetching images:', error);
-    iziToast.error({
-      title: 'Error',
-      message: 'Something went wrong. Please try again later.',
-      position: 'topRight',
-    });
-  }
-});
+export function showEndMessage() {
+  endMessage.style.display = 'block';
+}
 
-// **🔹 Обработчик кнопки "Load More"**
-loadMoreButton.addEventListener('click', async () => {
-  if (gallery.children.length >= totalHits) {
-    hideLoadMoreButton();
-    showEndMessage();
-    return;
-  }
-
-  currentPage += 1;
-
-  try {
-    const response = await fetchImages(searchQuery, currentPage, perPage);
-    if (response && response.hits.length > 0) {
-      renderImages(response.hits, true);
-    }
-
-    if (gallery.children.length >= totalHits) {
-      hideLoadMoreButton();
-      showEndMessage();
-    }
-  } catch (error) {
-    console.error('Error loading more images:', error);
-  }
-});
-
+export function hideEndMessage() {
+  endMessage.style.display = 'none';
+}
 
 
 
