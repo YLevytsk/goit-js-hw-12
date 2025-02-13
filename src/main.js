@@ -15,25 +15,18 @@ let totalHits = 0;
 hideLoadMoreButton();
 hideEndMessage();
 
-// 🔹 Функция плавной прокрутки
-function smoothScroll() {
-  const firstGalleryItem = document.querySelector('.gallery-item');
-  if (firstGalleryItem) {
-    const cardHeight = firstGalleryItem.getBoundingClientRect().height;
-    window.scrollBy({
-      top: cardHeight * 2,
-      behavior: 'smooth',
-    });
-  }
-}
-
 // 🔹 Обработчик отправки формы
 form.addEventListener('submit', async event => {
   event.preventDefault();
-  
+
   searchQuery = event.target.elements.searchQuery.value.trim();
+
   if (!searchQuery) {
-    iziToast.warning({ title: 'Warning', message: 'Please enter a search term!', position: 'topRight' });
+    iziToast.warning({
+      title: 'Warning',
+      message: 'Please enter a search term!',
+      position: 'topRight',
+    });
     return;
   }
 
@@ -44,15 +37,15 @@ form.addEventListener('submit', async event => {
 
   try {
     const response = await fetchImages(searchQuery, currentPage, perPage);
-    
-    if (!response || response.totalHits === 0) {
-      iziToast.info({ 
-        title: 'Info', 
-        message: 'No images found for your query.', 
+
+    // ❌ Если сервер вернул 0 результатов, показываем сообщение, а не загружаем пустую галерею
+    if (!response || !response.hits || response.hits.length === 0) {
+      iziToast.info({
+        title: 'Info',
+        message: 'No images found for your query. Please try another one.',
         position: 'topRight',
-        timeout: 3000, // Убираем повторное всплытие
       });
-      return;
+      return; // ❗ Останавливаем выполнение кода, чтобы галерея не загружалась
     }
 
     totalHits = Math.min(response.totalHits, 500);
@@ -60,10 +53,6 @@ form.addEventListener('submit', async event => {
 
     if (totalHits > perPage) {
       showLoadMoreButton();
-    }
-
-    if (document.querySelector('.gallery').children.length === 0) {
-      showEndMessage();
     }
   } catch (error) {
     console.error('Error fetching images:', error);
@@ -79,12 +68,12 @@ loadMoreButton.addEventListener('click', async () => {
   }
 
   currentPage += 1;
-  
+
   try {
     const response = await fetchImages(searchQuery, currentPage, perPage);
+
     if (response && response.hits.length > 0) {
       renderImages(response.hits, true);
-      smoothScroll();
     }
 
     if (document.querySelector('.gallery').children.length >= totalHits) {
@@ -95,6 +84,7 @@ loadMoreButton.addEventListener('click', async () => {
     console.error('Error loading more images:', error);
   }
 });
+
 
 
 
