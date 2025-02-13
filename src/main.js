@@ -46,7 +46,12 @@ form.addEventListener('submit', async event => {
     const response = await fetchImages(searchQuery, currentPage, perPage);
     
     if (!response || response.totalHits === 0) {
-      iziToast.info({ title: 'Info', message: 'No images found for your query.', position: 'topRight' });
+      iziToast.info({ 
+        title: 'Info', 
+        message: 'No images found for your query.', 
+        position: 'topRight',
+        timeout: 3000, // Убираем повторное всплытие
+      });
       return;
     }
 
@@ -57,7 +62,7 @@ form.addEventListener('submit', async event => {
       showLoadMoreButton();
     }
 
-    if (totalHits === 0) {
+    if (document.querySelector('.gallery').children.length === 0) {
       showEndMessage();
     }
   } catch (error) {
