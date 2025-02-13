@@ -1,5 +1,12 @@
 import { fetchImages } from './js/pixabay-api.js';
-import { renderImages, clearGallery, showLoadMoreButton, hideLoadMoreButton, showEndMessage, hideEndMessage } from './js/render-functions.js';
+import {
+  renderImages,
+  clearGallery,
+  showLoadMoreButton,
+  hideLoadMoreButton,
+  showEndMessage,
+  hideEndMessage
+} from './js/render-functions.js';
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
@@ -11,16 +18,16 @@ let currentPage = 1;
 const perPage = 40;
 let totalHits = 0;
 
-// 🔹 Скрываем кнопку и сообщение при загрузке страницы
+// **🔹 Скрываем кнопку и сообщение при загрузке страницы**
 hideLoadMoreButton();
 hideEndMessage();
 
-// 🔹 Обработчик отправки формы
+// **🔹 Обработчик отправки формы**
 form.addEventListener('submit', async event => {
   event.preventDefault();
 
   searchQuery = event.target.elements.searchQuery.value.trim();
-
+  
   if (!searchQuery) {
     iziToast.warning({
       title: 'Warning',
@@ -38,14 +45,13 @@ form.addEventListener('submit', async event => {
   try {
     const response = await fetchImages(searchQuery, currentPage, perPage);
 
-    // ❌ Оставляем только ОДНО уведомление, если ничего не найдено
     if (!response || !response.hits || response.hits.length === 0) {
       iziToast.info({
         title: 'Info',
         message: 'No images found for your query. Please try another one.',
         position: 'topRight',
       });
-      return; // ❗ Останавливаем выполнение кода, чтобы галерея не загружалась
+      return;
     }
 
     totalHits = Math.min(response.totalHits, 500);
@@ -59,7 +65,7 @@ form.addEventListener('submit', async event => {
   }
 });
 
-// 🔹 Обработчик клика на кнопку "Load More"
+// **🔹 Обработчик клика на кнопку "Load More"**
 loadMoreButton.addEventListener('click', async () => {
   if (document.querySelector('.gallery').children.length >= totalHits) {
     hideLoadMoreButton();
@@ -71,7 +77,6 @@ loadMoreButton.addEventListener('click', async () => {
 
   try {
     const response = await fetchImages(searchQuery, currentPage, perPage);
-
     if (response && response.hits.length > 0) {
       renderImages(response.hits, true);
     }
@@ -84,6 +89,7 @@ loadMoreButton.addEventListener('click', async () => {
     console.error('Error loading more images:', error);
   }
 });
+
 
 
 

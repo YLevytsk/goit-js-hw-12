@@ -7,14 +7,23 @@ const lightbox = new SimpleLightbox('.gallery a', {
   captionDelay: 250,
 });
 const loadMoreButton = document.querySelector('.load-more');
-const endMessage = document.querySelector('.end-message');
 
-// 🔹 Очистка галереи перед новым запросом
+// **🔹 Создаём сообщение о конце результатов, если его нет**
+let endMessage = document.querySelector('.end-message');
+if (!endMessage) {
+  endMessage = document.createElement('p');
+  endMessage.classList.add('end-message');
+  endMessage.textContent = "We're sorry, but you've reached the end of search results.";
+  endMessage.style.display = 'none';
+  document.body.appendChild(endMessage);
+}
+
+// **🔹 Очистка галереи перед новым запросом**
 export function clearGallery() {
   gallery.innerHTML = '';
 }
 
-// 🔹 Функция рендера изображений
+// **🔹 Функция рендера изображений**
 export function renderImages(images, append = false) {
   if (!Array.isArray(images) || images.length === 0) return;
 
@@ -37,9 +46,18 @@ export function renderImages(images, append = false) {
 
   gallery.insertAdjacentHTML('beforeend', markup);
   lightbox.refresh();
+
+  // **🔹 Прокрутка страницы на 2 высоты карточек после загрузки новых изображений**
+  if (append) {
+    const firstGalleryItem = document.querySelector('.gallery-item');
+    if (firstGalleryItem) {
+      const cardHeight = firstGalleryItem.getBoundingClientRect().height;
+      window.scrollBy({ top: cardHeight * 2, behavior: 'smooth' });
+    }
+  }
 }
 
-// 🔹 Функции для управления UI (Убраны уведомления, теперь они только в `main.js`)
+// **🔹 Функции для управления UI**
 export function showLoadMoreButton() {
   loadMoreButton.style.display = 'block';
 }
@@ -49,12 +67,17 @@ export function hideLoadMoreButton() {
 }
 
 export function showEndMessage() {
-  endMessage.style.display = 'block';
+  if (endMessage) {
+    endMessage.style.display = 'block';
+  }
 }
 
 export function hideEndMessage() {
-  endMessage.style.display = 'none';
+  if (endMessage) {
+    endMessage.style.display = 'none';
+  }
 }
+
 
 
 
