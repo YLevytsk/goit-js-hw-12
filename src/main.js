@@ -12,6 +12,7 @@ let searchQuery = '';
 let currentPage = 1;
 const perPage = 40;
 let totalHits = 0;
+let loadedImages = new Set(); // Используем Set для хранения уникальных изображений
 
 function showLoader() {
   document.getElementById('loading-overlay').style.display = 'flex';
@@ -39,6 +40,54 @@ function smoothScroll() {
   }
 }
 
+// Функция для отправки запроса и обработки данных
+async function loadImages(query, page) {
+  showLoader();
+  try {
+    const response = await fetchImages(query, page, perPage);
+
+    // Проверка на отсутствие данных
+    if (!response || !response.hits || response.hits.length === 0) {
+      iziToast.error({
+        title: 'Error',
+        message: 'No images found for the given search term.',
+        position: 'topRight',
+      });
+      return;
+    }
+
+    // Обновляем количество найденных изображений
+    totalHits = Math.min(response.totalHits, 500);
+
+    // Отфильтровываем изображения, чтобы избежать повторений
+    const newImages = response.hits.filter(image => !loadedImages.has(image.id));
+    
+    // Если есть новые изображения, рендерим их
+    if (newImages.length > 0) {
+      renderImages(newImages, currentPage > 1);
+      newImages.forEach(image => loadedImages.add(image.id)); // Добавляем в Set
+    }
+
+    // Если количество всех найденных изображений больше, чем одно подгружаем следующее
+    if (totalHits > perPage) {
+      showLoadMoreButton();
+    } else {
+      hideLoadMoreButton();
+      showEndMessage();
+    }
+
+    smoothScroll(); // Плавная прокрутка
+  } catch (error) {
+    iziToast.error({
+      title: 'Error',
+      message: 'Failed to load images. Please try again.',
+      position: 'topRight',
+    });
+  } finally {
+    hideLoader();
+  }
+}
+
 // Обработчик отправки формы
 form.addEventListener('submit', async event => {
   event.preventDefault();
@@ -56,69 +105,49 @@ form.addEventListener('submit', async event => {
 
   currentPage = 1;
   totalHits = 0;
+  loadedImages.clear(); // Очистка Set с загруженными изображениями
   clearGallery(); // Очистка галереи перед загрузкой новых изображений
   hideLoadMoreButton();
   hideEndMessage();
 
-  showLoader();
-  try {
-    const response = await fetchImages(searchQuery, currentPage, perPage);
-
-    if (!response || !response.hits || response.hits.length === 0) {
-      iziToast.error({
-        title: 'Error',
-        message: 'No images found for the given search term.',
-        position: 'topRight',
-      });
-      return;
-    }
-
-    totalHits = Math.min(response.totalHits, 500);
-    renderImages(response.hits);
-
-    if (totalHits > perPage) {
-      showLoadMoreButton();
-    }
-  } catch (error) {
-    iziToast.error({
-      title: 'Error',
-      message: 'Failed to load images. Please try again.',
-      position: 'topRight',
-    });
-  } finally {
-    hideLoader();
-  }
+  loadImages(searchQuery, currentPage); // Отправка запроса на API
 });
 
 // Обработчик кнопки "Load More"
 loadMoreButton.addEventListener('click', async () => {
   currentPage += 1;
-
-  showLoader();
-  try {
-    const response = await fetchImages(searchQuery, currentPage, perPage);
-
-    if (response && response.hits.length > 0) {
-      renderImages(response.hits, true);
-    }
-
-    if (currentPage * perPage >= totalHits) {
-      hideLoadMoreButton();
-      showEndMessage();
-    }
-
-    smoothScroll(); // Плавная прокрутка
-
-  } catch (error) {
-    iziToast.error({
-      title: 'Error',
-      message: 'Failed to load more images. Please try again.',
-      position: 'topRight',
-    });
-  } finally {
-    hideLoader();
-  }
+  loadImages(searchQuery, currentPage);
 });
+
+// Показать кнопку "Load More"
+function showLoadMoreButton() {
+  loadMoreButton.style.display = 'block';
+}
+
+// Скрыть кнопку "Load More"
+function hideLoadMoreButton() {
+  loadMoreButton.style.display = 'none';
+}
+
+// Показать сообщение о конце коллекции
+function showEndMessage() {
+  if (endMessage) {
+    endMessage.style.display = 'block';
+  }
+}
+
+// Скрыть сообщение о конце коллекции
+function hideEndMessage() {
+  if (endMessage) {
+    endMessage.style.display = 'none';
+  }
+}
+
+// Очистить галерею
+function clearGallery() {
+  gallery.innerHTML = '';
+}
+
 
 
 
