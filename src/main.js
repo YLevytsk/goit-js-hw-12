@@ -2,7 +2,6 @@ import { fetchImages } from './js/pixabay-api.js';
 import { renderImages, showEndMessage, hideLoadMoreButton } from './js/render-functions.js';
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
-import './loader.css';  // Импорт стилей для лоадера
 
 const form = document.querySelector('.search-form');
 const loadMoreButton = document.querySelector('.load-more');
@@ -14,11 +13,11 @@ let totalHits = 0;
 let loadedImages = new Set(); // Для хранения уникальных изображений (по ID)
 
 function showLoader() {
-  document.getElementById('loading-overlay').style.display = 'flex'; // Показываем лоадер
+  document.getElementById('loading-overlay').style.display = 'flex';
 }
 
 function hideLoader() {
-  document.getElementById('loading-overlay').style.display = 'none'; // Скрываем лоадер
+  document.getElementById('loading-overlay').style.display = 'none';
 }
 
 // Функция для отправки запроса и обработки данных
@@ -33,7 +32,7 @@ async function loadImages(query, page) {
     return;
   }
 
-  showLoader(); // Показываем лоадер при начале запроса
+  showLoader();
 
   try {
     const response = await fetchImages(query, page, perPage);
@@ -74,7 +73,7 @@ async function loadImages(query, page) {
       position: 'topRight',
     });
   } finally {
-    hideLoader(); // Скрываем лоадер
+    hideLoader();
   }
 }
 
@@ -107,7 +106,7 @@ form.addEventListener('submit', async event => {
   totalHits = 0;
   loadedImages.clear(); // Очистка Set с загруженными изображениями
   hideLoadMoreButton(); // Скрыть кнопку "Load More"
-  showLoader(); // Показываем лоадер
+  showLoader();
 
   try {
     const response = await fetchImages(searchQuery, currentPage, perPage);
@@ -136,14 +135,14 @@ form.addEventListener('submit', async event => {
       position: 'topRight',
     });
   } finally {
-    hideLoader(); // Скрываем лоадер
+    hideLoader();
   }
 });
 
 // Обработчик кнопки "Load More"
 loadMoreButton.addEventListener('click', async () => {
   currentPage += 1;
-  showLoader(); // Показываем лоадер при нажатии на "Load More"
+  showLoader();
 
   try {
     const response = await fetchImages(searchQuery, currentPage, perPage);
@@ -167,7 +166,7 @@ loadMoreButton.addEventListener('click', async () => {
       position: 'topRight',
     });
   } finally {
-    hideLoader(); // Скрываем лоадер
+    hideLoader();
   }
 });
 
