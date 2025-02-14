@@ -120,34 +120,6 @@ loadMoreButton.addEventListener('click', async () => {
   }
 });
 
-// Показать кнопку "Load More"
-function showLoadMoreButton() {
-  loadMoreButton.style.display = 'block';
-}
-
-// Скрыть кнопку "Load More"
-function hideLoadMoreButton() {
-  loadMoreButton.style.display = 'none';
-}
-
-// Показать сообщение о конце коллекции
-function showEndMessage() {
-  if (endMessage) {
-    endMessage.style.display = 'block';
-  }
-}
-
-// Скрыть сообщение о конце коллекции
-function hideEndMessage() {
-  if (endMessage) {
-    endMessage.style.display = 'none';
-  }
-}
-
-// Очистить галерею
-function clearGallery() {
-  gallery.innerHTML = '';
-}
 
 
 
