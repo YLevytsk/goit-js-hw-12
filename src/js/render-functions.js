@@ -1,5 +1,7 @@
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
+import iziToast from 'izitoast';
+import 'izitoast/dist/css/iziToast.min.css';
 
 const gallery = document.querySelector('.gallery');
 
@@ -11,9 +13,9 @@ let lightbox = new SimpleLightbox('.gallery a', {
 
 // Функция для рендеринга изображений
 export function renderImages(images, append = false) {
+  // Проверка на пустой массив
   if (!images || images.length === 0) {
-    // Показать сообщение об ошибке, если не было найдено изображений
-    showErrorMessage('Sorry, no images match your search. Please try again!');
+    showErrorMessage('Sorry, there are no images matching your search query. Please try again!');
     return;
   }
 
