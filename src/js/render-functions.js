@@ -77,6 +77,14 @@ export function showEndMessage() {
   gallery.after(message);
 }
 
+// Функция для скрытия сообщения о конце коллекции
+export function hideEndMessage() {
+  const endMessage = document.querySelector('.end-message');
+  if (endMessage) {
+    endMessage.remove();
+  }
+}
+
 // Функция для скрытия кнопки "Load More"
 export function hideLoadMoreButton() {
   const loadMoreButton = document.querySelector('.load-more');
