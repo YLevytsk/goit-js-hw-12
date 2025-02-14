@@ -36,7 +36,6 @@ async function loadImages(query, page) {
   try {
     const response = await fetchImages(query, page, perPage);
 
-    // Если API вернул пустой массив, показываем ошибку
     if (!response || !response.hits || response.hits.length === 0) {
       iziToast.error({
         title: 'Error',
@@ -46,26 +45,24 @@ async function loadImages(query, page) {
       return;
     }
 
-    // Обновляем количество найденных изображений
     totalHits = Math.min(response.totalHits, 500);
 
-    // Отфильтровываем изображения, чтобы избежать повторений
     const newImages = response.hits.filter(image => !loadedImages.has(image.id));
 
     if (newImages.length > 0) {
       renderImages(newImages, currentPage > 1);
-      newImages.forEach(image => loadedImages.add(image.id)); // Добавляем в Set уникальные ID
+      newImages.forEach(image => loadedImages.add(image.id)); // Добавляем уникальные ID в Set
     }
 
-    // Если количество всех найденных изображений больше, чем одно подгружаем следующее
+    // Если достигнут конец коллекции
     if (totalHits <= currentPage * perPage) {
-      hideLoadMoreButton(); // Скрыть кнопку "Load More"
-      showEndMessage(); // Показать сообщение о конце коллекции
+      hideLoadMoreButton();
+      showEndMessage();
     } else {
-      loadMoreButton.style.display = 'block'; // Показать кнопку "Load More"
+      loadMoreButton.style.display = 'block';
     }
 
-    smoothScroll(); // Плавная прокрутка
+    smoothScroll();
   } catch (error) {
     iziToast.error({
       title: 'Error',
@@ -104,13 +101,12 @@ form.addEventListener('submit', async event => {
   currentPage = 1;
   totalHits = 0;
   loadedImages.clear(); // Очистка Set с загруженными изображениями
-  hideLoadMoreButton(); // Скрыть кнопку "Load More"
+  hideLoadMoreButton();
   showLoader();
 
   try {
     const response = await fetchImages(searchQuery, currentPage, perPage);
 
-    // Если API вернул пустой массив, показываем ошибку
     if (!response || !response.hits || response.hits.length === 0) {
       iziToast.error({
         title: 'Error',
@@ -148,12 +144,10 @@ loadMoreButton.addEventListener('click', async () => {
     const response = await fetchImages(searchQuery, currentPage, perPage);
 
     if (response && response.hits.length > 0) {
-      // Отфильтровываем изображения, чтобы избежать повторений
       const newImages = response.hits.filter(image => !loadedImages.has(image.id));
-      renderImages(newImages, true);
+      renderImages(newImages, true); // Добавляем изображения без очистки галереи
       newImages.forEach(image => loadedImages.add(image.id));
 
-      // Если достигнут конец коллекции
       if (currentPage * perPage >= totalHits) {
         hideLoadMoreButton();
         showEndMessage();
@@ -169,6 +163,7 @@ loadMoreButton.addEventListener('click', async () => {
     hideLoader();
   }
 });
+
 
 
 

@@ -19,7 +19,6 @@ export function renderImages(images, append = false) {
     return;
   }
 
-  // Создание разметки для изображений
   const markup = images.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads, id }) => `
     <div class="gallery-item" data-id="${id}">
       <a href="${largeImageURL}">
@@ -82,7 +81,6 @@ export function hideLoadMoreButton() {
     loadMoreButton.style.display = 'none';
   }
 }
-
 
 
 
