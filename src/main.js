@@ -2,7 +2,7 @@ import { fetchImages } from './js/pixabay-api.js';
 import { renderImages, showEndMessage, hideLoadMoreButton } from './js/render-functions.js';
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
-import './styles.css';  // Импорт стилей для лоадера
+import './css/styles.css';   // Импорт стилей для лоадера
 
 const form = document.querySelector('.search-form');
 const loadMoreButton = document.querySelector('.load-more');
