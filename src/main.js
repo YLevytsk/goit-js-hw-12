@@ -1,5 +1,5 @@
 import { fetchImages } from './js/pixabay-api.js';
-import { renderImages, showEndMessage, hideLoadMoreButton, showErrorMessage } from './js/render-functions.js';
+import { renderImages, showEndMessage, hideLoadMoreButton } from './js/render-functions.js';
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
@@ -22,9 +22,13 @@ function hideLoader() {
 
 // Функция для отправки запроса и обработки данных
 async function loadImages(query, page) {
-  // Проверка на пустой или некорректный запрос
+  // Проверка на пустой запрос
   if (!query || query.trim() === '') {
-    showErrorMessage('Sorry, please enter a valid search term!');
+    iziToast.warning({
+      title: 'Warning',
+      message: 'Please enter a valid search term!',
+      position: 'topRight',
+    });
     return;
   }
 
@@ -34,7 +38,11 @@ async function loadImages(query, page) {
     const response = await fetchImages(query, page, perPage);
 
     if (!response || !response.hits || response.hits.length === 0) {
-      showErrorMessage('Sorry, no images match your search. Please try again!');
+      iziToast.error({
+        title: 'Error',
+        message: 'Sorry, no images match your search. Please try again!',
+        position: 'topRight',
+      });
       return;
     }
 
@@ -84,6 +92,7 @@ form.addEventListener('submit', async event => {
 
   searchQuery = event.target.elements.searchQuery.value.trim();
 
+  // Проверка на пустой запрос
   if (!searchQuery || searchQuery.trim() === '') {
     iziToast.warning({
       title: 'Warning',
@@ -101,7 +110,7 @@ form.addEventListener('submit', async event => {
 
   try {
     const response = await fetchImages(searchQuery, currentPage, perPage);
-    
+
     if (response && response.hits.length > 0) {
       renderImages(response.hits);
       totalHits = response.totalHits;
@@ -113,7 +122,11 @@ form.addEventListener('submit', async event => {
         showEndMessage(); // Показать сообщение о конце коллекции, если изображений больше нет
       }
     } else {
-      showErrorMessage('Sorry, no images match your search. Please try again!');
+      iziToast.error({
+        title: 'Error',
+        message: 'Sorry, no images match your search. Please try again!',
+        position: 'topRight',
+      });
     }
   } catch (error) {
     iziToast.error({
@@ -154,6 +167,7 @@ loadMoreButton.addEventListener('click', async () => {
     hideLoader();
   }
 });
+
 
 
 
