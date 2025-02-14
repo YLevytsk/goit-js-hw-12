@@ -130,50 +130,42 @@
   background-color: #3b63c7;
 }
 
-loading-overlay {
-  display: none; 
-  display: flex; 
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.8);
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
+/* styles.css */
 
-loader {
-  width: 50px;
-  height: 50px;
+/* Loader styles */
+.loader {
+  border: 16px solid #f3f3f3; /* Light grey */
+  border-top: 16px solid #3498db; /* Blue */
   border-radius: 50%;
-  border: 5px solid #ccc;
-  border-top-color: #4e75ff;
-  animation: spin 1s linear infinite;
+  width: 120px;
+  height: 120px;
+  animation: spin 2s linear infinite;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-left: -60px; /* Half of width */
+  margin-top: -60px; /* Half of height */
+  display: none;  /* Лоадер скрыт по умолчанию */
 }
 
-keyframes spin {
+@keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
-.load-more {
-  margin: 32px auto 44px;
-  background: #4e75ff;
-  color: #ffffff;
-  font-size: 16px;
-  text-align: center;
-  cursor: pointer;
-  border: none;
-  outline: none;
-  border-radius: 8px;
-  padding: 8px 16px;
-  width: 125px;
-  height: 40px;
-  align-items: center;
-  display: block;
 
+/* Для появления поверх контента */
+#loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: none; /* Лоадер скрыт по умолчанию */
+  justify-content: center;
+  align-items: center;
 }
+
 
 .end-message {
   font-family: var(--font-family);
