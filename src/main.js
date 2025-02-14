@@ -6,7 +6,6 @@ import 'izitoast/dist/css/iziToast.min.css';
 const gallery = document.querySelector('.gallery');
 const form = document.querySelector('.search-form');
 const loadMoreButton = document.querySelector('.load-more');
-const endMessage = document.querySelector('.end-message') || createEndMessage();
 
 let searchQuery = '';
 let currentPage = 1;
@@ -20,24 +19,6 @@ function showLoader() {
 
 function hideLoader() {
   document.getElementById('loading-overlay').style.display = 'none';
-}
-
-function createEndMessage() {
-  const message = document.createElement('p');
-  message.classList.add('end-message');
-  message.textContent = "We're sorry, but you've reached the end of search results.";
-  message.style.display = 'none';
-  gallery.after(message);
-  return message;
-}
-
-// Плавная прокрутка
-function smoothScroll() {
-  const firstGalleryItem = document.querySelector('.gallery-item');
-  if (firstGalleryItem) {
-    const cardHeight = firstGalleryItem.getBoundingClientRect().height;
-    window.scrollBy({ top: cardHeight * 2, behavior: 'smooth' });
-  }
 }
 
 // Функция для отправки запроса и обработки данных
@@ -88,6 +69,15 @@ async function loadImages(query, page) {
   }
 }
 
+// Плавная прокрутка
+function smoothScroll() {
+  const firstGalleryItem = document.querySelector('.gallery-item');
+  if (firstGalleryItem) {
+    const cardHeight = firstGalleryItem.getBoundingClientRect().height;
+    window.scrollBy({ top: cardHeight * 2, behavior: 'smooth' });
+  }
+}
+
 // Обработчик отправки формы
 form.addEventListener('submit', async event => {
   event.preventDefault();
@@ -119,34 +109,6 @@ loadMoreButton.addEventListener('click', async () => {
   loadImages(searchQuery, currentPage);
 });
 
-// Показать кнопку "Load More"
-function showLoadMoreButton() {
-  loadMoreButton.style.display = 'block';
-}
-
-// Скрыть кнопку "Load More"
-function hideLoadMoreButton() {
-  loadMoreButton.style.display = 'none';
-}
-
-// Показать сообщение о конце коллекции
-function showEndMessage() {
-  if (endMessage) {
-    endMessage.style.display = 'block';
-  }
-}
-
-// Скрыть сообщение о конце коллекции
-function hideEndMessage() {
-  if (endMessage) {
-    endMessage.style.display = 'none';
-  }
-}
-
-// Очистить галерею
-function clearGallery() {
-  gallery.innerHTML = '';
-}
 
 
 
