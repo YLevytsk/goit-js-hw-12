@@ -9,15 +9,10 @@ const lightbox = new SimpleLightbox('.gallery a', {
   captionDelay: 250,
 });
 
-// Функция для очистки галереи
-export function clearGallery() {
-  gallery.innerHTML = '';
-}
-
 // Функция для рендеринга изображений
 export function renderImages(images, append = false) {
   if (images.length === 0) {
-    showErrorMessage();
+    showErrorMessage('Sorry, no images match your search. Please try again!');
     return;
   }
 
@@ -61,28 +56,20 @@ function smoothScroll() {
 }
 
 // Функция для отображения сообщения об ошибке
-export function showErrorMessage() {
-  gallery.innerHTML = `
-    <p class="error-message">
-      Sorry, no images match your search. Please try again!
-    </p>
-  `;
+export function showErrorMessage(message) {
+  iziToast.error({
+    title: 'Error',
+    message: message,
+    position: 'topRight',
+  });
 }
 
 // Функция для отображения сообщения о конце коллекции
 export function showEndMessage() {
   const message = document.createElement('p');
   message.classList.add('end-message');
-  message.textContent = "You've reached the end of the collection.";
+  message.textContent = "We're sorry, but you've reached the end of search results.";
   gallery.after(message);
-}
-
-// Функция для скрытия сообщения о конце коллекции
-export function hideEndMessage() {
-  const endMessage = document.querySelector('.end-message');
-  if (endMessage) {
-    endMessage.remove();
-  }
 }
 
 // Функция для скрытия кнопки "Load More"
@@ -90,14 +77,6 @@ export function hideLoadMoreButton() {
   const loadMoreButton = document.querySelector('.load-more');
   if (loadMoreButton) {
     loadMoreButton.style.display = 'none';
-  }
-}
-
-// Функция для отображения кнопки "Load More"
-export function showLoadMoreButton() {
-  const loadMoreButton = document.querySelector('.load-more');
-  if (loadMoreButton) {
-    loadMoreButton.style.display = 'block';
   }
 }
 
