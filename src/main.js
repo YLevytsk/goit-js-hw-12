@@ -1,7 +1,7 @@
-import { renderImages, showEndMessage, hideLoadMoreButton } from './js/render-functions.js';  // Импорт нужных функций
+import { renderImages, showEndMessage, hideLoadMoreButton } from './js/render-functions.js';
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
-import './css/styles.css';  // Импорт стилей для лоадера
+import './css/styles.css';
 
 const form = document.querySelector('.search-form');
 const loadMoreButton = document.querySelector('.load-more');
@@ -22,7 +22,6 @@ function hideLoader() {
 
 // Функция для отправки запроса и обработки данных
 async function loadImages(query, page) {
-  // Проверка на пустой запрос
   if (!query || query.trim() === '') {
     iziToast.warning({
       title: 'Warning',
@@ -35,7 +34,13 @@ async function loadImages(query, page) {
   showLoader();
 
   try {
+    // Логирование запроса для отладки
+    console.log(`Sending request with query: ${query}, page: ${page}`);
+
     const response = await fetchImages(query, page, perPage);
+
+    // Логирование ответа от API
+    console.log('API Response:', response);
 
     // Если API вернул пустой массив, показываем ошибку
     if (!response || !response.hits || response.hits.length === 0) {
@@ -93,7 +98,6 @@ form.addEventListener('submit', async event => {
 
   searchQuery = event.target.elements.searchQuery.value.trim();
 
-  // Проверка на пустой запрос
   if (!searchQuery || searchQuery.trim() === '') {
     iziToast.warning({
       title: 'Warning',
@@ -110,9 +114,15 @@ form.addEventListener('submit', async event => {
   showLoader();
 
   try {
+    // Логирование запроса
+    console.log(`Search request: ${searchQuery}, Page: ${currentPage}`);
+
     const response = await fetchImages(searchQuery, currentPage, perPage);
 
-    // Если API вернул пустой массив, показываем ошибку
+    // Логирование ответа
+    console.log('API Response:', response);
+
+    // Проверка на пустой ответ
     if (!response || !response.hits || response.hits.length === 0) {
       iziToast.error({
         title: 'Error',
@@ -125,11 +135,10 @@ form.addEventListener('submit', async event => {
     renderImages(response.hits);
     totalHits = response.totalHits;
 
-    // Если есть больше изображений, показываем кнопку "Load More"
     if (totalHits > perPage) {
       loadMoreButton.style.display = 'block';
     } else {
-      showEndMessage(); // Показать сообщение о конце коллекции, если изображений больше нет
+      showEndMessage();
     }
   } catch (error) {
     iziToast.error({
@@ -153,13 +162,13 @@ loadMoreButton.addEventListener('click', async () => {
     if (response && response.hits.length > 0) {
       // Отфильтровываем изображения, чтобы избежать повторений
       const newImages = response.hits.filter(image => !loadedImages.has(image.id));
-      renderImages(newImages, true); // Рендерим изображения без очистки галереи
-      newImages.forEach(image => loadedImages.add(image.id)); // Добавляем новые изображения в Set
+      renderImages(newImages, true);
+      newImages.forEach(image => loadedImages.add(image.id));
 
       // Если достигнут конец коллекции
       if (currentPage * perPage >= totalHits) {
-        hideLoadMoreButton(); // Скрыть кнопку "Load More"
-        showEndMessage(); // Показать сообщение о конце коллекции
+        hideLoadMoreButton();
+        showEndMessage();
       }
     }
   } catch (error) {
@@ -172,6 +181,7 @@ loadMoreButton.addEventListener('click', async () => {
     hideLoader();
   }
 });
+
 
 
 
