@@ -46,6 +46,40 @@ export function renderImages(images, append = false) {
   smoothScroll();
 }
 
+// Функция для плавной прокрутки
+function smoothScroll() {
+  const firstGalleryItem = document.querySelector('.gallery-item');
+  if (firstGalleryItem) {
+    const cardHeight = firstGalleryItem.getBoundingClientRect().height;
+    window.scrollBy({ top: cardHeight * 2, behavior: 'smooth' });
+  }
+}
+
+// Функция для отображения сообщения об ошибке
+function showErrorMessage(message) {
+  iziToast.error({
+    title: 'Error',
+    message: message,
+    position: 'topRight',
+  });
+}
+
+// Функция для отображения сообщения о конце коллекции
+export function showEndMessage() {
+  const message = document.createElement('p');
+  message.classList.add('end-message');
+  message.textContent = "We're sorry, but you've reached the end of search results.";
+  gallery.after(message);
+}
+
+// Функция для скрытия кнопки "Load More"
+export function hideLoadMoreButton() {
+  const loadMoreButton = document.querySelector('.load-more');
+  if (loadMoreButton) {
+    loadMoreButton.style.display = 'none';
+  }
+}
+
 
 
 
