@@ -11,7 +11,8 @@ let lightbox = new SimpleLightbox('.gallery a', {
 
 // Функция для рендеринга изображений
 export function renderImages(images, append = false) {
-  if (images.length === 0) {
+  if (!images || images.length === 0) {
+    // Показать сообщение об ошибке, если не было найдено изображений
     showErrorMessage('Sorry, no images match your search. Please try again!');
     return;
   }
@@ -79,6 +80,7 @@ export function hideLoadMoreButton() {
     loadMoreButton.style.display = 'none';
   }
 }
+
 
 
 
