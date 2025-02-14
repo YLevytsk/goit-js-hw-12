@@ -58,11 +58,11 @@ async function loadImages(query, page) {
     }
 
     // Если количество всех найденных изображений больше, чем одно подгружаем следующее
-    if (totalHits > perPage) {
-      showLoadMoreButton();
+    if (totalHits <= currentPage * perPage) {
+      hideLoadMoreButton(); // Скрыть кнопку "Load More"
+      showEndMessage(); // Показать сообщение о конце коллекции
     } else {
-      hideLoadMoreButton();
-      showEndMessage();
+      loadMoreButton.style.display = 'block'; // Показать кнопку "Load More"
     }
 
     smoothScroll(); // Плавная прокрутка
