@@ -5,8 +5,8 @@ const gallery = document.querySelector('.gallery');
 
 // Инициализация SimpleLightbox для модального окна с изображениями
 const lightbox = new SimpleLightbox('.gallery a', {
-  captionsData: 'alt',
-  captionDelay: 250,
+  captionsData: 'alt',  // Для отображения подписи
+  captionDelay: 250,    // Задержка при отображении подписи
 });
 
 // Функция для рендеринга изображений
@@ -79,6 +79,7 @@ export function hideLoadMoreButton() {
     loadMoreButton.style.display = 'none';
   }
 }
+
 
 
 
