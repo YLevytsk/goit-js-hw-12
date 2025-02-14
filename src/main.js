@@ -10,7 +10,7 @@ let searchQuery = '';
 let currentPage = 1;
 const perPage = 40;
 let totalHits = 0;
-let loadedImages = new Set(); // Для хранения уникальных изображений
+let loadedImages = new Set(); // Для хранения уникальных изображений (по ID)
 
 function showLoader() {
   document.getElementById('loading-overlay').style.display = 'flex';
@@ -54,7 +54,7 @@ async function loadImages(query, page) {
 
     if (newImages.length > 0) {
       renderImages(newImages, currentPage > 1);
-      newImages.forEach(image => loadedImages.add(image.id)); // Добавляем в Set
+      newImages.forEach(image => loadedImages.add(image.id)); // Добавляем в Set уникальные ID
     }
 
     // Если количество всех найденных изображений больше, чем одно подгружаем следующее
@@ -148,8 +148,10 @@ loadMoreButton.addEventListener('click', async () => {
     const response = await fetchImages(searchQuery, currentPage, perPage);
 
     if (response && response.hits.length > 0) {
-      renderImages(response.hits, true); // Рендерим изображения без очистки галереи
-      response.hits.forEach(image => loadedImages.add(image.id));
+      // Отфильтровываем изображения, чтобы избежать повторений
+      const newImages = response.hits.filter(image => !loadedImages.has(image.id));
+      renderImages(newImages, true); // Рендерим изображения без очистки галереи
+      newImages.forEach(image => loadedImages.add(image.id)); // Добавляем новые изображения в Set
 
       // Если достигнут конец коллекции
       if (currentPage * perPage >= totalHits) {
