@@ -1,7 +1,7 @@
-import { renderImages, showEndMessage, hideLoadMoreButton } from './js/render-functions.js';
+import { renderImages, showEndMessage, hideLoadMoreButton } from './js/render-functions.js';  // Импорт нужных функций
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
-import './css/styles.css';
+import './css/styles.css';  // Импорт стилей для лоадера
 
 const form = document.querySelector('.search-form');
 const loadMoreButton = document.querySelector('.load-more');
@@ -34,13 +34,7 @@ async function loadImages(query, page) {
   showLoader();
 
   try {
-    // Логирование запроса для отладки
-    console.log(`Sending request with query: ${query}, page: ${page}`);
-
     const response = await fetchImages(query, page, perPage);
-
-    // Логирование ответа от API
-    console.log('API Response:', response);
 
     // Если API вернул пустой массив, показываем ошибку
     if (!response || !response.hits || response.hits.length === 0) {
@@ -114,15 +108,9 @@ form.addEventListener('submit', async event => {
   showLoader();
 
   try {
-    // Логирование запроса
-    console.log(`Search request: ${searchQuery}, Page: ${currentPage}`);
-
     const response = await fetchImages(searchQuery, currentPage, perPage);
 
-    // Логирование ответа
-    console.log('API Response:', response);
-
-    // Проверка на пустой ответ
+    // Если API вернул пустой массив, показываем ошибку
     if (!response || !response.hits || response.hits.length === 0) {
       iziToast.error({
         title: 'Error',
