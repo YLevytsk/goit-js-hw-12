@@ -37,6 +37,7 @@ async function loadImages(query, page) {
   try {
     const response = await fetchImages(query, page, perPage);
 
+    // Если API вернул пустой массив, показываем ошибку
     if (!response || !response.hits || response.hits.length === 0) {
       iziToast.error({
         title: 'Error',
@@ -111,22 +112,24 @@ form.addEventListener('submit', async event => {
   try {
     const response = await fetchImages(searchQuery, currentPage, perPage);
 
-    if (response && response.hits.length > 0) {
-      renderImages(response.hits);
-      totalHits = response.totalHits;
-
-      // Если есть больше изображений, показываем кнопку "Load More"
-      if (totalHits > perPage) {
-        loadMoreButton.style.display = 'block';
-      } else {
-        showEndMessage(); // Показать сообщение о конце коллекции, если изображений больше нет
-      }
-    } else {
+    // Если API вернул пустой массив, показываем ошибку
+    if (!response || !response.hits || response.hits.length === 0) {
       iziToast.error({
         title: 'Error',
         message: 'Sorry, no images match your search. Please try again!',
         position: 'topRight',
       });
+      return;
+    }
+
+    renderImages(response.hits);
+    totalHits = response.totalHits;
+
+    // Если есть больше изображений, показываем кнопку "Load More"
+    if (totalHits > perPage) {
+      loadMoreButton.style.display = 'block';
+    } else {
+      showEndMessage(); // Показать сообщение о конце коллекции, если изображений больше нет
     }
   } catch (error) {
     iziToast.error({
