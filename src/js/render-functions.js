@@ -55,7 +55,7 @@ function smoothScroll() {
   }
 }
 
-// Функция для отображения сообщения об ошибке
+// Функция для отображения сообщения об ошибке (только через iziToast)
 export function showErrorMessage(message) {
   iziToast.error({
     title: 'Error',
