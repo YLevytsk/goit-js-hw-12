@@ -9,6 +9,11 @@ const lightbox = new SimpleLightbox('.gallery a', {
   captionDelay: 250,
 });
 
+// Функция для очистки галереи
+export function clearGallery() {
+  gallery.innerHTML = '';
+}
+
 // Функция для рендеринга изображений
 export function renderImages(images, append = false) {
   if (images.length === 0) {
