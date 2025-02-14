@@ -3,10 +3,8 @@ import { renderImages, clearGallery, showLoadMoreButton, hideLoadMoreButton, sho
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
-const gallery = document.querySelector('.gallery');
 const form = document.querySelector('.search-form');
 const loadMoreButton = document.querySelector('.load-more');
-const endMessage = document.querySelector('.end-message');
 
 let searchQuery = '';
 let currentPage = 1;
@@ -40,7 +38,7 @@ form.addEventListener('submit', async event => {
   try {
     const response = await fetchImages(searchQuery, currentPage, perPage);
 
-    // **❌ Проверка на пустой ответ от API**
+    // **❌ Если API вернул пустой массив, показываем сообщение**
     if (!response || !response.hits || response.hits.length === 0) {
       iziToast.info({
         title: 'Info',
@@ -53,11 +51,11 @@ form.addEventListener('submit', async event => {
     totalHits = Math.min(response.totalHits, 500);
     renderImages(response.hits);
 
+    // **Показываем кнопку "Load More", если есть еще изображения**
     if (totalHits > perPage) {
       showLoadMoreButton();
     }
   } catch (error) {
-    console.error('Error fetching images:', error);
     iziToast.error({
       title: 'Error',
       message: 'Something went wrong. Please try again later.',
@@ -68,12 +66,6 @@ form.addEventListener('submit', async event => {
 
 // **🔹 Обработчик кнопки "Load More"**
 loadMoreButton.addEventListener('click', async () => {
-  if (gallery.children.length >= totalHits) {
-    hideLoadMoreButton();
-    showEndMessage();
-    return;
-  }
-
   currentPage += 1;
 
   try {
@@ -82,12 +74,17 @@ loadMoreButton.addEventListener('click', async () => {
       renderImages(response.hits, true);
     }
 
-    if (gallery.children.length >= totalHits) {
+    // **Если просмотрены все изображения — скрываем кнопку и показываем сообщение**
+    if (currentPage * perPage >= totalHits) {
       hideLoadMoreButton();
       showEndMessage();
     }
   } catch (error) {
-    console.error('Error loading more images:', error);
+    iziToast.error({
+      title: 'Error',
+      message: 'Failed to load more images. Please try again.',
+      position: 'topRight',
+    });
   }
 });
 

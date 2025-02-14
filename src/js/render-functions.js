@@ -3,12 +3,22 @@ import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const gallery = document.querySelector('.gallery');
 const loadMoreButton = document.querySelector('.load-more');
-const endMessage = document.querySelector('.end-message');
+const endMessage = document.querySelector('.end-message') || createEndMessage();
 
 const lightbox = new SimpleLightbox('.gallery a', {
   captionsData: 'alt',
   captionDelay: 250,
 });
+
+// **🔹 Функция создания элемента сообщения, если его нет в DOM**
+function createEndMessage() {
+  const message = document.createElement('p');
+  message.classList.add('end-message');
+  message.textContent = "We're sorry, but you've reached the end of search results.";
+  message.style.display = 'none';
+  gallery.after(message);
+  return message;
+}
 
 // **🔹 Функция очистки галереи**
 export function clearGallery() {
@@ -61,12 +71,17 @@ export function hideLoadMoreButton() {
 }
 
 export function showEndMessage() {
-  endMessage.style.display = 'block';
+  if (endMessage) {
+    endMessage.style.display = 'block';
+  }
 }
 
 export function hideEndMessage() {
-  endMessage.style.display = 'none';
+  if (endMessage) {
+    endMessage.style.display = 'none';
+  }
 }
+
 
 
 
