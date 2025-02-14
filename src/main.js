@@ -1,9 +1,8 @@
 import { fetchImages } from './js/pixabay-api.js';
-import { renderImages, clearGallery, showLoadMoreButton, hideLoadMoreButton, showEndMessage, hideEndMessage } from './js/render-functions.js';
+import { renderImages, showEndMessage, hideLoadMoreButton, showErrorMessage } from './js/render-functions.js';
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
-const gallery = document.querySelector('.gallery');
 const form = document.querySelector('.search-form');
 const loadMoreButton = document.querySelector('.load-more');
 
@@ -11,7 +10,7 @@ let searchQuery = '';
 let currentPage = 1;
 const perPage = 40;
 let totalHits = 0;
-let loadedImages = new Set(); // Используем Set для хранения уникальных изображений
+let loadedImages = new Set(); // Для хранения уникальных изображений
 
 function showLoader() {
   document.getElementById('loading-overlay').style.display = 'flex';
@@ -23,17 +22,19 @@ function hideLoader() {
 
 // Функция для отправки запроса и обработки данных
 async function loadImages(query, page) {
+  // Проверка на пустой или некорректный запрос
+  if (!query || query.trim() === '') {
+    showErrorMessage('Sorry, please enter a valid search term!');
+    return;
+  }
+
   showLoader();
+
   try {
     const response = await fetchImages(query, page, perPage);
 
-    // Проверка на отсутствие данных
     if (!response || !response.hits || response.hits.length === 0) {
-      iziToast.error({
-        title: 'Error',
-        message: 'No images found for the given search term.',
-        position: 'topRight',
-      });
+      showErrorMessage('Sorry, no images match your search. Please try again!');
       return;
     }
 
@@ -42,8 +43,7 @@ async function loadImages(query, page) {
 
     // Отфильтровываем изображения, чтобы избежать повторений
     const newImages = response.hits.filter(image => !loadedImages.has(image.id));
-    
-    // Если есть новые изображения, рендерим их
+
     if (newImages.length > 0) {
       renderImages(newImages, currentPage > 1);
       newImages.forEach(image => loadedImages.add(image.id)); // Добавляем в Set
@@ -87,7 +87,7 @@ form.addEventListener('submit', async event => {
   if (!searchQuery || searchQuery.trim() === '') {
     iziToast.warning({
       title: 'Warning',
-      message: 'Please enter a search term!',
+      message: 'Please enter a valid search term!',
       position: 'topRight',
     });
     return;
@@ -96,17 +96,63 @@ form.addEventListener('submit', async event => {
   currentPage = 1;
   totalHits = 0;
   loadedImages.clear(); // Очистка Set с загруженными изображениями
-  clearGallery(); // Очистка галереи перед загрузкой новых изображений
-  hideLoadMoreButton();
-  hideEndMessage();
+  hideLoadMoreButton(); // Скрыть кнопку "Load More"
+  showLoader();
 
-  loadImages(searchQuery, currentPage); // Отправка запроса на API
+  try {
+    const response = await fetchImages(searchQuery, currentPage, perPage);
+    
+    if (response && response.hits.length > 0) {
+      renderImages(response.hits);
+      totalHits = response.totalHits;
+
+      // Если есть больше изображений, показываем кнопку "Load More"
+      if (totalHits > perPage) {
+        loadMoreButton.style.display = 'block';
+      } else {
+        showEndMessage(); // Показать сообщение о конце коллекции, если изображений больше нет
+      }
+    } else {
+      showErrorMessage('Sorry, no images match your search. Please try again!');
+    }
+  } catch (error) {
+    iziToast.error({
+      title: 'Error',
+      message: 'Failed to load images. Please try again.',
+      position: 'topRight',
+    });
+  } finally {
+    hideLoader();
+  }
 });
 
 // Обработчик кнопки "Load More"
 loadMoreButton.addEventListener('click', async () => {
   currentPage += 1;
-  loadImages(searchQuery, currentPage);
+  showLoader();
+
+  try {
+    const response = await fetchImages(searchQuery, currentPage, perPage);
+
+    if (response && response.hits.length > 0) {
+      renderImages(response.hits, true); // Рендерим изображения без очистки галереи
+      response.hits.forEach(image => loadedImages.add(image.id));
+
+      // Если достигнут конец коллекции
+      if (currentPage * perPage >= totalHits) {
+        hideLoadMoreButton(); // Скрыть кнопку "Load More"
+        showEndMessage(); // Показать сообщение о конце коллекции
+      }
+    }
+  } catch (error) {
+    iziToast.error({
+      title: 'Error',
+      message: 'Failed to load more images. Please try again.',
+      position: 'topRight',
+    });
+  } finally {
+    hideLoader();
+  }
 });
 
 
