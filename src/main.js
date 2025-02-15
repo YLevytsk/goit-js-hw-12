@@ -11,18 +11,16 @@ const loader = document.getElementById('loading-overlay');
 let searchQuery = '';
 let currentPage = 1;
 const perPage = 40;
-const MAX_PAGES = 5; // ✅ Ограничение на 5 страниц
+const MAX_PAGES = 5;
 let totalHits = 0;
-let loadedImages = new Set(); // ✅ Хранение уникальных ID загруженных изображений
+let loadedImages = new Set();
 
 function showLoader() {
-  const loaderElement = document.getElementById('loading-overlay');
-  if (loaderElement) loaderElement.style.display = 'flex';
+  if (loader) loader.style.display = 'flex';
 }
 
 function hideLoader() {
-  const loaderElement = document.getElementById('loading-overlay');
-  if (loaderElement) loaderElement.style.display = 'none';
+  if (loader) loader.style.display = 'none';
 }
 
 // ✅ Функция плавной прокрутки (только при догрузке)
@@ -62,13 +60,11 @@ async function loadImages(query, page, isLoadMore = false) {
       renderImages(newImages, currentPage > 1);
       newImages.forEach(image => loadedImages.add(image.id));
 
-      // ✅ Прокрутка только если догружаем страницы
       if (isLoadMore) {
         smoothScroll();
       }
     }
 
-    // ✅ Ограничение в 5 страниц (200 изображений)
     if (currentPage >= MAX_PAGES || totalHits <= currentPage * perPage) {
       hideLoadMoreButton();
       showEndMessage();
@@ -101,10 +97,10 @@ form.addEventListener('submit', async event => {
     return;
   }
 
-  currentPage = 1; // ✅ Сбрасываем страницу до 1
+  currentPage = 1;
   totalHits = 0;
-  loadedImages.clear(); // ✅ Очищаем загруженные ID
-  hideLoadMoreButton(); // ✅ Скрываем кнопку "Load More"
+  loadedImages.clear();
+  hideLoadMoreButton();
   showLoader();
 
   try {
@@ -126,10 +122,21 @@ loadMoreButton.addEventListener('click', async () => {
   showLoader();
 
   try {
-    await loadImages(searchQuery, currentPage, true); // ✅ Передаем `true`, чтобы запустить прокрутку
+    await loadImages(searchQuery, currentPage, true);
   } finally {
     hideLoader();
   }
+});
+
+// ✅ Лоадер при открытии SimpleLightbox
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
+
+const lightbox = new SimpleLightbox('.gallery a', {
+  captionsData: 'alt',
+  captionDelay: 250,
+  beforeShow: () => showLoader(),
+  afterShow: () => hideLoader(),
 });
 
 
