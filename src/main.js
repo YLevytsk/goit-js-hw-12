@@ -11,8 +11,9 @@ const loader = document.getElementById('loading-overlay');
 let searchQuery = '';
 let currentPage = 1;
 const perPage = 40;
+const MAX_PAGES = 5; // ✅ Ограничение на 5 страниц
 let totalHits = 0;
-let loadedImages = new Set();
+let loadedImages = new Set(); // ✅ Хранение уникальных ID загруженных изображений
 
 function showLoader() {
   const loaderElement = document.getElementById('loading-overlay');
@@ -24,6 +25,7 @@ function hideLoader() {
   if (loaderElement) loaderElement.style.display = 'none';
 }
 
+// ✅ Функция загрузки изображений
 async function loadImages(query, page) {
   if (!query.trim()) {
     iziToast.warning({
@@ -52,7 +54,8 @@ async function loadImages(query, page) {
       newImages.forEach(image => loadedImages.add(image.id));
     }
 
-    if (totalHits <= currentPage * perPage) {
+    // ✅ Ограничение в 5 страниц (200 изображений)
+    if (currentPage >= MAX_PAGES || totalHits <= currentPage * perPage) {
       hideLoadMoreButton();
       showEndMessage();
     } else {
@@ -70,6 +73,7 @@ async function loadImages(query, page) {
   }
 }
 
+// ✅ Обработчик отправки формы (новый поиск)
 form.addEventListener('submit', async event => {
   event.preventDefault();
   searchQuery = event.target.elements.searchQuery.value.trim();
@@ -83,10 +87,10 @@ form.addEventListener('submit', async event => {
     return;
   }
 
-  currentPage = 1;
+  currentPage = 1; // ✅ Сбрасываем страницу до 1
   totalHits = 0;
-  loadedImages.clear();
-  hideLoadMoreButton();
+  loadedImages.clear(); // ✅ Очищаем загруженные ID
+  hideLoadMoreButton(); // ✅ Скрываем кнопку "Load More"
   showLoader();
 
   try {
@@ -96,7 +100,14 @@ form.addEventListener('submit', async event => {
   }
 });
 
+// ✅ Обработчик кнопки "Load More"
 loadMoreButton.addEventListener('click', async () => {
+  if (currentPage >= MAX_PAGES) {
+    hideLoadMoreButton();
+    showEndMessage();
+    return;
+  }
+
   currentPage += 1;
   showLoader();
 
@@ -107,22 +118,6 @@ loadMoreButton.addEventListener('click', async () => {
   }
 });
 
-// Обработка загрузки SimpleLightbox
-import SimpleLightbox from 'simplelightbox';
-import 'simplelightbox/dist/simple-lightbox.min.css';
-
-const lightbox = new SimpleLightbox('.gallery a', {
-  captionsData: 'alt',
-  captionDelay: 250,
-  beforeShow: () => showLoader(), // Показ лоадера при открытии изображения
-  afterShow: () => hideLoader(),  // Скрытие лоадера после загрузки
-});
-
-// Добавление HTML-структуры лоадера в index.html
-const loaderHTML = `
-  <div id="loading-overlay" class="loader loader-5"></div>
-`;
-document.body.insertAdjacentHTML('beforeend', loaderHTML);
 
 
 
