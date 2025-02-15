@@ -25,6 +25,15 @@ function hideLoader() {
   if (loaderElement) loaderElement.style.display = 'none';
 }
 
+// ✅ Функция плавной прокрутки
+function smoothScroll() {
+  const firstGalleryItem = document.querySelector('.gallery-item');
+  if (firstGalleryItem) {
+    const cardHeight = firstGalleryItem.getBoundingClientRect().height;
+    window.scrollBy({ top: cardHeight * 2, behavior: 'smooth' });
+  }
+}
+
 // ✅ Функция загрузки изображений
 async function loadImages(query, page) {
   if (!query.trim()) {
@@ -52,6 +61,7 @@ async function loadImages(query, page) {
     if (newImages.length > 0) {
       renderImages(newImages, currentPage > 1);
       newImages.forEach(image => loadedImages.add(image.id));
+      smoothScroll(); // ✅ Добавил прокрутку после загрузки
     }
 
     // ✅ Ограничение в 5 страниц (200 изображений)
