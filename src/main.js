@@ -1,7 +1,7 @@
-import { renderImages, showEndMessage, hideLoadMoreButton } from './js/render-functions.js';  // Импорт нужных функций
+import { renderImages, showEndMessage, hideLoadMoreButton } from './js/render-functions.js';  
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
-import './css/styles.css';  // Импорт стилей для лоадера
+import './css/styles.css';  
 
 const form = document.querySelector('.search-form');
 const loadMoreButton = document.querySelector('.load-more');
@@ -10,7 +10,7 @@ let searchQuery = '';
 let currentPage = 1;
 const perPage = 40;
 let totalHits = 0;
-let loadedImages = new Set(); // Для хранения уникальных изображений (по ID)
+let loadedImages = new Set();
 
 function showLoader() {
   document.getElementById('loading-overlay').style.display = 'flex';
@@ -20,9 +20,8 @@ function hideLoader() {
   document.getElementById('loading-overlay').style.display = 'none';
 }
 
-// Функция для отправки запроса и обработки данных
 async function loadImages(query, page) {
-  if (!query || query.trim() === '') {
+  if (!query.trim()) {
     iziToast.warning({
       title: 'Warning',
       message: 'Please enter a valid search term!',
@@ -42,19 +41,18 @@ async function loadImages(query, page) {
         message: 'Sorry, no images match your search. Please try again!',
         position: 'topRight',
       });
+      hideLoader();
       return;
     }
 
     totalHits = Math.min(response.totalHits, 500);
-
     const newImages = response.hits.filter(image => !loadedImages.has(image.id));
 
     if (newImages.length > 0) {
       renderImages(newImages, currentPage > 1);
-      newImages.forEach(image => loadedImages.add(image.id)); // Добавляем уникальные ID в Set
+      newImages.forEach(image => loadedImages.add(image.id));
     }
 
-    // Если достигнут конец коллекции
     if (totalHits <= currentPage * perPage) {
       hideLoadMoreButton();
       showEndMessage();
@@ -74,7 +72,6 @@ async function loadImages(query, page) {
   }
 }
 
-// Плавная прокрутка
 function smoothScroll() {
   const firstGalleryItem = document.querySelector('.gallery-item');
   if (firstGalleryItem) {
@@ -83,13 +80,11 @@ function smoothScroll() {
   }
 }
 
-// Обработчик отправки формы
 form.addEventListener('submit', async event => {
   event.preventDefault();
 
   searchQuery = event.target.elements.searchQuery.value.trim();
-
-  if (!searchQuery || searchQuery.trim() === '') {
+  if (!searchQuery) {
     iziToast.warning({
       title: 'Warning',
       message: 'Please enter a valid search term!',
@@ -100,7 +95,7 @@ form.addEventListener('submit', async event => {
 
   currentPage = 1;
   totalHits = 0;
-  loadedImages.clear(); // Очистка Set с загруженными изображениями
+  loadedImages.clear();
   hideLoadMoreButton();
   showLoader();
 
@@ -113,6 +108,7 @@ form.addEventListener('submit', async event => {
         message: 'Sorry, no images match your search. Please try again!',
         position: 'topRight',
       });
+      hideLoader();
       return;
     }
 
@@ -135,7 +131,6 @@ form.addEventListener('submit', async event => {
   }
 });
 
-// Обработчик кнопки "Load More"
 loadMoreButton.addEventListener('click', async () => {
   currentPage += 1;
   showLoader();
@@ -145,7 +140,7 @@ loadMoreButton.addEventListener('click', async () => {
 
     if (response && response.hits.length > 0) {
       const newImages = response.hits.filter(image => !loadedImages.has(image.id));
-      renderImages(newImages, true); // Добавляем изображения без очистки галереи
+      renderImages(newImages, true);
       newImages.forEach(image => loadedImages.add(image.id));
 
       if (currentPage * perPage >= totalHits) {
@@ -163,6 +158,7 @@ loadMoreButton.addEventListener('click', async () => {
     hideLoader();
   }
 });
+
 
 
 
