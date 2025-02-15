@@ -68,7 +68,7 @@ async function loadImages(query, page) {
     iziToast.error({
       title: 'Error',
       message: 'Failed to load images. Please try again!',
-      position: 'topRight',
+        position: 'topRight',
     });
   } finally {
     hideLoader();
@@ -165,6 +165,7 @@ loadMoreButton.addEventListener('click', async () => {
     hideLoader();
   }
 });
+
 
 
 
