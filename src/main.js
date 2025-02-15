@@ -21,9 +21,7 @@ function hideLoader() {
   document.getElementById('loading-overlay').style.display = 'none';
 }
 
-// ✅ Функция для загрузки изображений
 async function loadImages(query, page) {
-  // ✅ Проверка на пустой ввод — выводим только 1 `Warning` 
   if (!query.trim()) {
     iziToast.warning({
       title: 'Warning',
@@ -38,13 +36,7 @@ async function loadImages(query, page) {
   try {
     const response = await fetchImages(query, page, perPage);
 
-    // ✅ Если API вернул `totalHits: 0`, выводим **ТОЛЬКО 1 `Error`**
     if (!response || response.totalHits === 0) {
-      iziToast.error({
-        title: 'Error',
-        message: 'Sorry, no images match your search. Please try again!',
-        position: 'topRight',
-      });
       hideLoader();
       return;
     }
@@ -63,6 +55,7 @@ async function loadImages(query, page) {
     } else {
       loadMoreButton.style.display = 'block';
     }
+
   } catch (error) {
     iziToast.error({
       title: 'Error',
@@ -74,13 +67,10 @@ async function loadImages(query, page) {
   }
 }
 
-// ✅ Обработчик отправки формы
 form.addEventListener('submit', async event => {
   event.preventDefault();
-
   searchQuery = event.target.elements.searchQuery.value.trim();
 
-  // ✅ Проверка на пустой ввод — теперь **ТОЛЬКО 1 `Warning`**
   if (!searchQuery) {
     iziToast.warning({
       title: 'Warning',
@@ -103,7 +93,6 @@ form.addEventListener('submit', async event => {
   }
 });
 
-// ✅ Обработчик кнопки "Load More"
 loadMoreButton.addEventListener('click', async () => {
   currentPage += 1;
   showLoader();
@@ -114,6 +103,7 @@ loadMoreButton.addEventListener('click', async () => {
     hideLoader();
   }
 });
+
 
 
 
