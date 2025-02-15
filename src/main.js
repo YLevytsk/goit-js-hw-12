@@ -1,7 +1,8 @@
-import { renderImages, showEndMessage, hideLoadMoreButton } from './js/render-functions.js';  
+import { fetchImages } from './js/pixabay-api.js';
+import { renderImages, showEndMessage, hideLoadMoreButton } from './js/render-functions.js';
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
-import './css/styles.css';  
+import './css/styles.css';
 
 const form = document.querySelector('.search-form');
 const loadMoreButton = document.querySelector('.load-more');
@@ -20,6 +21,7 @@ function hideLoader() {
   document.getElementById('loading-overlay').style.display = 'none';
 }
 
+// Функция для отправки запроса и обработки данных
 async function loadImages(query, page) {
   if (!query.trim()) {
     iziToast.warning({
