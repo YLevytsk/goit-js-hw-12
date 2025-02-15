@@ -1,50 +1,58 @@
-import SimpleLightbox from 'simplelightbox';
+import SimpleLightbox from 'simplelightbox'; 
 import 'simplelightbox/dist/simple-lightbox.min.css';
-import iziToast from 'izitoast';
-import 'izitoast/dist/css/iziToast.min.css';
 
 const gallery = document.querySelector('.gallery');
-
-// Инициализация SimpleLightbox для модального окна с изображениями
-let lightbox = new SimpleLightbox('.gallery a', {
-  captionsData: 'alt',  // Для отображения подписи
-  captionDelay: 250,    // Задержка при отображении подписи
+const lightbox = new SimpleLightbox('.gallery a', {
+  captionsData: 'alt',
+  captionDelay: 250,
 });
 
 // Функция для рендеринга изображений
 export function renderImages(images, append = false) {
-  // Проверка на пустой массив
-  if (!images || images.length === 0) {
-    showErrorMessage('Sorry, there are no images matching your search query. Please try again!');
+  // Если append == false, то очищаем галерею
+  if (!append) {
+    gallery.innerHTML = ''; 
+  }
+
+  if (images.length === 0) {
+    showErrorMessage();
     return;
   }
 
-  const markup = images.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads, id }) => `
-    <div class="gallery-item" data-id="${id}">
+  // Создание разметки для изображений
+  const markup = images.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => `
+    <div class="gallery-item">
       <a href="${largeImageURL}">
         <img src="${webformatURL}" alt="${tags}" loading="lazy" />
       </a>
       <div class="image-info">
-        <div class="item"><span class="label">Likes</span><span class="count">${likes}</span></div>
-        <div class="item"><span class="label">Views</span><span class="count">${views}</span></div>
-        <div class="item"><span class="label">Comments</span><span class="count">${comments}</span></div>
-        <div class="item"><span class="label">Downloads</span><span class="count">${downloads}</span></div>
+        <div class="item">
+          <span class="label">Likes</span>
+          <span class="count">${likes}</span>
+        </div>
+        <div class="item">
+          <span class="label">Views</span>
+          <span class="count">${views}</span>
+        </div>
+        <div class="item">
+          <span class="label">Comments</span>
+          <span class="count">${comments}</span>
+        </div>
+        <div class="item">
+          <span class="label">Downloads</span>
+          <span class="count">${downloads}</span>
+        </div>
       </div>
     </div>
   `).join('');
 
-  // Если добавляем новые изображения, то не очищаем галерею
-  if (!append) {
-    gallery.innerHTML = '';  // Очистка галереи перед рендером
-  }
-
-  // Добавление разметки в галерею
+  // Вставляем разметку в галерею
   gallery.insertAdjacentHTML('beforeend', markup);
+  
+  // Обновляем SimpleLightbox после добавления новых изображений
+  lightbox.refresh(); 
 
-  // Обновляем SimpleLightbox для новых изображений
-  lightbox.refresh();
-
-  // Плавная прокрутка
+  // Плавная прокрутка после добавления изображений
   smoothScroll();
 }
 
@@ -58,12 +66,12 @@ function smoothScroll() {
 }
 
 // Функция для отображения сообщения об ошибке
-function showErrorMessage(message) {
-  iziToast.error({
-    title: 'Error',
-    message: message,
-    position: 'topRight',
-  });
+export function showErrorMessage() {
+  gallery.innerHTML = `
+    <p class="error-message">
+      Sorry, no images match your search. Please try again!
+    </p>
+  `;
 }
 
 // Функция для отображения сообщения о конце коллекции
