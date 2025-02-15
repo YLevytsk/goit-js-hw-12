@@ -153,6 +153,7 @@
 
 .loader {
   transform: rotateZ(45deg);
+  position: relative;
   perspective: 1000px;
   border-radius: 50%;
   width: 48px;
