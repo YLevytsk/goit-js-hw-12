@@ -6,7 +6,7 @@ import './css/styles.css';
 
 const form = document.querySelector('.search-form');
 const loadMoreButton = document.querySelector('.load-more');
-const loader = document.getElementById('loading-overlay');
+const loader = document.getElementById('loading-overlay'); // Оверлей лоадера
 
 let searchQuery = '';
 let currentPage = 1;
@@ -15,15 +15,27 @@ const MAX_PAGES = 5;
 let totalHits = 0;
 let loadedImages = new Set();
 
+// ✅ Функция отображения лоадера
 function showLoader() {
-  if (loader) loader.style.display = 'flex';
+  if (loader) {
+    loader.style.display = 'flex';
+    loader.style.opacity = '1'; // Плавное появление
+  }
 }
 
+// ✅ Функция скрытия лоадера
 function hideLoader() {
-  if (loader) loader.style.display = 'none';
+  if (loader) {
+    setTimeout(() => {
+      loader.style.opacity = '0'; // Плавное исчезновение
+      setTimeout(() => {
+        loader.style.display = 'none';
+      }, 300); // Даем время для анимации
+    }, 500); // Оставляем его видимым на 0.5с перед скрытием
+  }
 }
 
-// ✅ Функция плавной прокрутки
+// ✅ Функция плавной прокрутки после загрузки новых изображений
 function smoothScroll() {
   const firstGalleryItem = document.querySelector('.gallery-item');
   if (firstGalleryItem) {
@@ -138,6 +150,17 @@ const lightbox = new SimpleLightbox('.gallery a', {
   beforeShow: () => showLoader(),
   afterShow: () => hideLoader(),
 });
+
+// ✅ Добавляем HTML-структуру лоадера в `index.html`, если он отсутствует
+if (!document.getElementById('loading-overlay')) {
+  const loaderHTML = `
+    <div id="loading-overlay">
+      <span class="loader"></span>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', loaderHTML);
+}
+
 
 
 
