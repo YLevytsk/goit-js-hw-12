@@ -21,6 +21,7 @@ function hideLoader() {
   document.getElementById('loading-overlay').style.display = 'none';
 }
 
+// Функция для отправки запроса и обработки данных
 async function loadImages(query, page) {
   if (!query.trim()) {
     iziToast.warning({
@@ -36,6 +37,7 @@ async function loadImages(query, page) {
   try {
     const response = await fetchImages(query, page, perPage);
 
+    // Если API вернул пустой массив (нет результатов)
     if (!response || !response.hits || response.hits.length === 0) {
       iziToast.error({
         title: 'Error',
@@ -72,8 +74,10 @@ async function loadImages(query, page) {
   }
 }
 
+// Обработчик отправки формы
 form.addEventListener('submit', async event => {
   event.preventDefault();
+
   searchQuery = event.target.elements.searchQuery.value.trim();
 
   if (!searchQuery) {
@@ -98,6 +102,7 @@ form.addEventListener('submit', async event => {
   }
 });
 
+// Обработчик кнопки "Load More"
 loadMoreButton.addEventListener('click', async () => {
   currentPage += 1;
   showLoader();
@@ -108,6 +113,7 @@ loadMoreButton.addEventListener('click', async () => {
     hideLoader();
   }
 });
+
 
 
 
