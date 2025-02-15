@@ -37,6 +37,7 @@ async function loadImages(query, page) {
   try {
     const response = await fetchImages(query, page, perPage);
 
+    // Если API вернул пустой массив (нет результатов)
     if (!response || !response.hits || response.hits.length === 0) {
       iziToast.error({
         title: 'Error',
@@ -66,7 +67,7 @@ async function loadImages(query, page) {
   } catch (error) {
     iziToast.error({
       title: 'Error',
-      message: 'Failed to load images. Please try again.',
+      message: 'Failed to load images. Please try again!',
       position: 'topRight',
     });
   } finally {
@@ -74,6 +75,7 @@ async function loadImages(query, page) {
   }
 }
 
+// Функция плавной прокрутки
 function smoothScroll() {
   const firstGalleryItem = document.querySelector('.gallery-item');
   if (firstGalleryItem) {
@@ -82,10 +84,12 @@ function smoothScroll() {
   }
 }
 
+// Обработчик отправки формы
 form.addEventListener('submit', async event => {
   event.preventDefault();
 
   searchQuery = event.target.elements.searchQuery.value.trim();
+
   if (!searchQuery) {
     iziToast.warning({
       title: 'Warning',
@@ -133,6 +137,7 @@ form.addEventListener('submit', async event => {
   }
 });
 
+// Обработчик кнопки "Load More"
 loadMoreButton.addEventListener('click', async () => {
   currentPage += 1;
   showLoader();
@@ -160,6 +165,7 @@ loadMoreButton.addEventListener('click', async () => {
     hideLoader();
   }
 });
+
 
 
 

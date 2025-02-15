@@ -182,4 +182,23 @@
   margin-bottom: 64px;
 }
 
-
+/* Стили для кнопки Load More */
+.load-more {
+  display: none;
+  margin: 32px auto 44px; /* Отступ сверху 32px, снизу 44px */
+  padding: 8px 16px;
+  width: 125px;
+  height: 40px;
+  background: #4e75ff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: var(--font-family);
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 150%;
+  letter-spacing: 0.04em;
+  color: #fff;
+  text-align: center;
+  transition: background 0.3s ease-in-out;
+}
