@@ -132,10 +132,19 @@
 
 /* styles.css */
 
+/* ✅ Контейнер для лоадеров (изначально скрыт) */
 .loader-container {
-  display: none; /* Скрываем по умолчанию */
-  text-align: center; /* Центрируем */
-  margin-top: 20px;
+  display: none; /* Скрыт по умолчанию */
+  position: fixed; /* Фиксированное положение */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* Центрирование */
+  z-index: 1000;
+}
+
+/* ✅ Основной стиль для двух лоадеров */
+.loader-container .loader {
+  margin: 0 auto;
 }
 
 .loader {
