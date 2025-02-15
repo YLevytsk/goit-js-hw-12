@@ -23,7 +23,7 @@ function hideLoader() {
   if (loader) loader.style.display = 'none';
 }
 
-// ✅ Функция плавной прокрутки (только при догрузке)
+// ✅ Функция плавной прокрутки
 function smoothScroll() {
   const firstGalleryItem = document.querySelector('.gallery-item');
   if (firstGalleryItem) {
@@ -138,6 +138,8 @@ const lightbox = new SimpleLightbox('.gallery a', {
   beforeShow: () => showLoader(),
   afterShow: () => hideLoader(),
 });
+
+
 
 
 
