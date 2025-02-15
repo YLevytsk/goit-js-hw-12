@@ -164,6 +164,7 @@
   display: none; /* Лоадер скрыт по умолчанию */
   justify-content: center;
   align-items: center;
+  z-index: 9999;
 }
 
 
