@@ -15,11 +15,13 @@ let totalHits = 0;
 let loadedImages = new Set();
 
 function showLoader() {
-  if (loader) loader.style.display = 'flex';
+  const loaderElement = document.getElementById('loading-overlay');
+  if (loaderElement) loaderElement.style.display = 'flex';
 }
 
 function hideLoader() {
-  if (loader) loader.style.display = 'none';
+  const loaderElement = document.getElementById('loading-overlay');
+  if (loaderElement) loaderElement.style.display = 'none';
 }
 
 async function loadImages(query, page) {
@@ -115,6 +117,12 @@ const lightbox = new SimpleLightbox('.gallery a', {
   beforeShow: () => showLoader(), // Показ лоадера при открытии изображения
   afterShow: () => hideLoader(),  // Скрытие лоадера после загрузки
 });
+
+// Добавление HTML-структуры лоадера в index.html
+const loaderHTML = `
+  <div id="loading-overlay" class="loader loader-5"></div>
+`;
+document.body.insertAdjacentHTML('beforeend', loaderHTML);
 
 
 
