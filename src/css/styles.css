@@ -144,7 +144,7 @@
   border-radius: 50%;
   width: 48px;
   height: 48px;
-  color: #fff;
+  color: #5611e2;
 }
 
 .loader:before,
@@ -162,7 +162,7 @@
 }
 
 .loader:after {
-  color: #FF3D00;
+  color: #ffff00;
   transform: rotateY(70deg);
   animation-delay: 1s; /* Было 0.4s, теперь 1s */
 }
