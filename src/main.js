@@ -25,7 +25,7 @@ function hideLoader() {
   if (loaderElement) loaderElement.style.display = 'none';
 }
 
-// ✅ Функция плавной прокрутки
+// ✅ Функция плавной прокрутки (только при догрузке)
 function smoothScroll() {
   const firstGalleryItem = document.querySelector('.gallery-item');
   if (firstGalleryItem) {
@@ -35,7 +35,7 @@ function smoothScroll() {
 }
 
 // ✅ Функция загрузки изображений
-async function loadImages(query, page) {
+async function loadImages(query, page, isLoadMore = false) {
   if (!query.trim()) {
     iziToast.warning({
       title: 'Warning',
@@ -61,7 +61,11 @@ async function loadImages(query, page) {
     if (newImages.length > 0) {
       renderImages(newImages, currentPage > 1);
       newImages.forEach(image => loadedImages.add(image.id));
-      smoothScroll(); // ✅ Добавил прокрутку после загрузки
+
+      // ✅ Прокрутка только если догружаем страницы
+      if (isLoadMore) {
+        smoothScroll();
+      }
     }
 
     // ✅ Ограничение в 5 страниц (200 изображений)
@@ -104,7 +108,7 @@ form.addEventListener('submit', async event => {
   showLoader();
 
   try {
-    await loadImages(searchQuery, currentPage);
+    await loadImages(searchQuery, currentPage, false);
   } finally {
     hideLoader();
   }
@@ -122,7 +126,7 @@ loadMoreButton.addEventListener('click', async () => {
   showLoader();
 
   try {
-    await loadImages(searchQuery, currentPage);
+    await loadImages(searchQuery, currentPage, true); // ✅ Передаем `true`, чтобы запустить прокрутку
   } finally {
     hideLoader();
   }
