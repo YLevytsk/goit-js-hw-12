@@ -131,6 +131,13 @@
 }
 
 /* styles.css */
+
+.loader-container {
+  display: none; /* Скрываем по умолчанию */
+  text-align: center; /* Центрируем */
+  margin-top: 20px;
+}
+
 .loader {
   transform: rotateZ(45deg);
   perspective: 1000px;
