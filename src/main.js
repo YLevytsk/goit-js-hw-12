@@ -6,6 +6,7 @@ import './css/styles.css';
 
 const form = document.querySelector('.search-form');
 const loadMoreButton = document.querySelector('.load-more');
+const loader = document.getElementById('loading-overlay');
 
 let searchQuery = '';
 let currentPage = 1;
@@ -14,11 +15,11 @@ let totalHits = 0;
 let loadedImages = new Set();
 
 function showLoader() {
-  document.getElementById('loading-overlay').style.display = 'flex';
+  if (loader) loader.style.display = 'flex';
 }
 
 function hideLoader() {
-  document.getElementById('loading-overlay').style.display = 'none';
+  if (loader) loader.style.display = 'none';
 }
 
 async function loadImages(query, page) {
@@ -102,6 +103,17 @@ loadMoreButton.addEventListener('click', async () => {
   } finally {
     hideLoader();
   }
+});
+
+// Обработка загрузки SimpleLightbox
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
+
+const lightbox = new SimpleLightbox('.gallery a', {
+  captionsData: 'alt',
+  captionDelay: 250,
+  beforeShow: () => showLoader(), // Показ лоадера при открытии изображения
+  afterShow: () => hideLoader(),  // Скрытие лоадера после загрузки
 });
 
 
