@@ -150,6 +150,7 @@
   align-items: center; /* Центрирование */
   justify-content: center;
   z-index: 1000;
+  transition: opacity 0.3s ease-in-out;
 }
 .loader:before,
 .loader:after {
