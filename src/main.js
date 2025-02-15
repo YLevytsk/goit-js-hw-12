@@ -7,6 +7,9 @@ import './css/styles.css';
 const form = document.querySelector('.search-form');
 const loadMoreButton = document.querySelector('.load-more');
 const loader = document.getElementById('loading-overlay');
+const endMessageContainer = document.createElement('div');
+endMessageContainer.classList.add('end-message-container');
+document.body.appendChild(endMessageContainer);
 
 let searchQuery = '';
 let currentPage = 1;
@@ -35,6 +38,7 @@ async function loadImages(query, page) {
   }
 
   showLoader();
+  endMessageContainer.innerHTML = ''; // Убираем старое сообщение
 
   try {
     const response = await fetchImages(query, page, perPage);
@@ -58,7 +62,6 @@ async function loadImages(query, page) {
     } else {
       loadMoreButton.style.display = 'block';
     }
-
   } catch (error) {
     iziToast.error({
       title: 'Error',
@@ -88,6 +91,7 @@ form.addEventListener('submit', async event => {
   loadedImages.clear();
   hideLoadMoreButton();
   showLoader();
+  endMessageContainer.innerHTML = ''; // Убираем старое сообщение
 
   try {
     await loadImages(searchQuery, currentPage);
@@ -114,8 +118,8 @@ import 'simplelightbox/dist/simple-lightbox.min.css';
 const lightbox = new SimpleLightbox('.gallery a', {
   captionsData: 'alt',
   captionDelay: 250,
-  beforeShow: () => showLoader(), // Показ лоадера при открытии изображения
-  afterShow: () => hideLoader(),  // Скрытие лоадера после загрузки
+  beforeShow: () => showLoader(),
+  afterShow: () => hideLoader(),
 });
 
 // Добавление HTML-структуры лоадера в index.html
@@ -123,6 +127,14 @@ const loaderHTML = `
   <div id="loading-overlay" class="loader loader-5"></div>
 `;
 document.body.insertAdjacentHTML('beforeend', loaderHTML);
+
+// Обновленная функция showEndMessage, чтобы не дублировать сообщение
+export function showEndMessage() {
+  endMessageContainer.innerHTML = '';
+  endMessageContainer.innerHTML = '<p class="end-message">We\'re sorry, but you\'ve reached the end of search results.</p>';
+  loadMoreButton.style.display = 'none';
+}
+
 
 
 
